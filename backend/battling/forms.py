@@ -1,6 +1,6 @@
 from django import forms
 
-from battling.models import Battle
+from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import valid_team
 from pokemon.models import Pokemon
 
@@ -38,6 +38,11 @@ class PokemonForm(forms.ModelForm):
 
         if not is_pokemon_sum_valid:
             raise forms.ValidationError("ERROR: Your pokemons sum more than 600 points.")
+
+        for i in range(1, 4):
+            PokemonTeam.objects.create(
+                team=Team.objects.last(), pokemon=cleaned_data["pokemon_" + str(i)], order=i
+            )
 
         return cleaned_data
 

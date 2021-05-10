@@ -1,12 +1,11 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView
 from django.views.generic.base import TemplateView
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
 
 from battling.forms import CreatorForm, OpponentForm
-from battling.models import Battle, PokemonTeam, Team
+from battling.models import Battle, Team
 from services.battles import run_battle_and_send_email
 
 
@@ -24,13 +23,7 @@ class CreateBattle(CreateView):
         form.instance.creator = self.request.user
         form.instance.save()
 
-        Team.objects.create(battle=form.instance, trainer=self.request.user)
-        pokemons = form.cleaned_data
-
-        for i in range(1, 4):
-            PokemonTeam.objects.create(
-                team=Team.objects.last(), pokemon=pokemons["pokemon_" + str(i)], order=i
-            )
+        Team.objects.create(battle=Battle.objects.last(), trainer=self.request.user)
 
         messages.success(self.request, "Your battle was created!")
 
