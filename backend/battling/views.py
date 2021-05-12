@@ -1,12 +1,15 @@
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic.base import TemplateView
 
-from battling.forms import CreatorForm, OpponentForm
+from battling.forms import CreatorForm, TeamForm
 from battling.models import Battle, Team
-from services.battles import run_battle_and_send_email
+
+
+# from services.battles import run_battle_and_send_email
 
 
 class Home(TemplateView):
@@ -17,40 +20,29 @@ class CreateBattle(CreateView):
     model = Battle
     form_class = CreatorForm
     template_name = "battling/create_battle.html"
-    success_url = reverse_lazy("home")
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
-        form.instance.save()
+        battle = form.save()
 
-        Team.objects.create(battle=Battle.objects.last(), trainer=self.request.user)
+        team = Team.objects.create(battle=battle, trainer=self.request.user)
+
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(team.id,)))
+
+
+class CreateTeam(UpdateView):
+    model = Team
+    form_class = TeamForm
+    template_name = "battling/create_team.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
 
         messages.success(self.request, "Your battle was created!")
 
-        return super().form_valid(form)
-
-
-class EnterBattle(CreateView):
-    model = Battle
-    form_class = OpponentForm
-    template_name = "battling/enter_battle.html"
-    success_url = reverse_lazy("home")
-
-    def get_battle(self):
-        id_ = Battle.objects.last().id
-        return get_object_or_404(Battle, id=id_)
-
-    def form_valid(self, form):
-        pokemon = form.cleaned_data
-
-        form.instance.pokemon_1 = pokemon["opponent_pokemon_1"]
-        form.instance.pokemon_2 = pokemon["opponent_pokemon_2"]
-        form.instance.pokemon_3 = pokemon["opponent_pokemon_3"]
-
-        form.instance.save()
-
-        form.instance.battle_id = self.get_battle().id
-        run_battle_and_send_email(form.instance.battle_id)
+        # form.instance.battle_id = self.get_battle().id
+        # run_battle_and_send_email(form.instance.battle_id)
+        # self.get_object()
 
         return super().form_valid(form)
 
