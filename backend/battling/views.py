@@ -37,14 +37,37 @@ class CreateTeam(UpdateView):
     success_url = reverse_lazy("home")
 
     def form_valid(self, form):
+        battle = self.get_object().battle
+        battle_creator = battle.creator
 
-        messages.success(self.request, "Your battle was created!")
+        # self.get_object().trainer will be replaced by self.request.user
+        # when the login feature is implemented
+        if self.get_object().trainer == battle_creator:
+            messages.success(self.request, "Your battle was created!")
 
-        # form.instance.battle_id = self.get_battle().id
-        # run_battle_and_send_email(form.instance.battle_id)
-        # self.get_object()
+        else:
+            messages.success(self.request, "Battle ended! Check e-mail for results.")
+
+            # run_battle_and_send_email(battle)
 
         return super().form_valid(form)
+
+
+class JoinBattle(UpdateView):
+    model = Team
+    form_class = CreatorForm
+    template_name = "battling/join_battle.html"
+
+    def get_battle(self):
+        return get_object_or_404(Battle, id=self.kwargs["pk"])
+
+    def form_valid(self, form):
+        form.instance.creator = self.request.user
+        battle = self.get_battle()
+
+        team = Team.objects.create(battle=battle, trainer=self.request.user)
+
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(team.id,)))
 
 
 class DetailBattle(DetailView):
@@ -56,28 +79,3 @@ class DetailBattle(DetailView):
         return get_object_or_404(Battle, pk=id_)
 
     context_object_name = "get_battle"
-
-
-# def battle_details(request):
-#     battle_id = Battle.objects.latest("id")
-#     battle_info = Battle.objects.filter(id=battle_id.id).values()[0]
-
-#     # get the pokemons ids from the battles
-#     creator_pokemons_id = [battle_info["creator_pokemon_" + str(i) + "_id"] for i in range(1, 4)]
-#   opponent_pokemons_id = [battle_info["opponent_pokemon_" + str(i) + "_id"] for i in range(1, 4)]
-
-#     # get the pokemons from the DB
-#     creator_pokemon_list = [Pokemon.objects.filter(id=j).values()[0] for j in creator_pokemons_id]
-#   opponent_pokemon_list = [Pokemon.objects.filter(id=j).values()[0] for j in opponent_pokemons_id]
-
-#     return render(
-#         request,
-#         "battling/battle_details.html",
-#         {
-#             "winner": "jaja",  # battle_id.winner.email.split("@")[0],
-#             "creator": battle_id.creator.email.split("@")[0],
-#             "opponent": battle_id.opponent.email.split("@")[0],
-#             "creator_pkms": creator_pokemon_list,
-#             "opponent_pkms": opponent_pokemon_list,
-#         },
-#     )
