@@ -52,7 +52,7 @@ class CreateTeam(UpdateView):
 
 
 class EditBattle(UpdateView):
-    model = Team
+    model = Battle
     form_class = CreateBattleForm
     template_name = "battling/edit_battle.html"
 
@@ -60,7 +60,6 @@ class EditBattle(UpdateView):
         return get_object_or_404(Battle, id=self.kwargs["pk"])
 
     def form_valid(self, form):
-        form.instance.creator = self.request.user
         battle = self.get_battle()
 
         team = Team.objects.create(battle=battle, trainer=self.request.user)
