@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic.base import TemplateView
 
-from battling.forms import CreatorForm, TeamForm
+from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, Team
 
 
@@ -18,7 +18,7 @@ class Home(TemplateView):
 
 class CreateBattle(CreateView):
     model = Battle
-    form_class = CreatorForm
+    form_class = CreateBattleForm
     template_name = "battling/create_battle.html"
 
     def form_valid(self, form):
@@ -32,7 +32,7 @@ class CreateBattle(CreateView):
 
 class CreateTeam(UpdateView):
     model = Team
-    form_class = TeamForm
+    form_class = CreateTeamForm
     template_name = "battling/create_team.html"
     success_url = reverse_lazy("home")
 
@@ -40,9 +40,7 @@ class CreateTeam(UpdateView):
         battle = self.get_object().battle
         battle_creator = battle.creator
 
-        # self.get_object().trainer will be replaced by self.request.user
-        # when the login feature is implemented
-        if self.get_object().trainer == battle_creator:
+        if self.request.user == battle_creator:
             messages.success(self.request, "Your battle was created!")
 
         else:
@@ -53,10 +51,10 @@ class CreateTeam(UpdateView):
         return super().form_valid(form)
 
 
-class JoinBattle(UpdateView):
+class EditBattle(UpdateView):
     model = Team
-    form_class = CreatorForm
-    template_name = "battling/join_battle.html"
+    form_class = CreateBattleForm
+    template_name = "battling/edit_battle.html"
 
     def get_battle(self):
         return get_object_or_404(Battle, id=self.kwargs["pk"])
@@ -67,6 +65,8 @@ class JoinBattle(UpdateView):
 
         team = Team.objects.create(battle=battle, trainer=self.request.user)
 
+        battle = form.save()
+
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team.id,)))
 
 
@@ -75,7 +75,4 @@ class DetailBattle(DetailView):
     model = Battle
 
     def get_battle(self):
-        id_ = Battle.objects.last().id
-        return get_object_or_404(Battle, pk=id_)
-
-    context_object_name = "get_battle"
+        return get_object_or_404(Battle, id=self.kwargs["pk"])

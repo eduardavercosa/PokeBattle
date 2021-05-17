@@ -5,13 +5,13 @@ from pokemon.helpers import valid_team
 from pokemon.models import Pokemon
 
 
-class CreatorForm(forms.ModelForm):
+class CreateBattleForm(forms.ModelForm):
     class Meta:
         model = Battle
         fields = ("opponent",)
 
 
-class TeamForm(forms.ModelForm):
+class CreateTeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = [
@@ -53,14 +53,18 @@ class TeamForm(forms.ModelForm):
         if not is_pokemon_sum_valid:
             raise forms.ValidationError("ERROR: Your pokemons sum more than 600 points.")
 
-        PokemonTeam.objects.create(
-            team=Team.objects.last(), pokemon=cleaned_data["pokemon_1"], order=1
-        )
-        PokemonTeam.objects.create(
-            team=Team.objects.last(), pokemon=cleaned_data["pokemon_2"], order=2
-        )
-        PokemonTeam.objects.create(
-            team=Team.objects.last(), pokemon=cleaned_data["pokemon_3"], order=3
-        )
-
         return cleaned_data
+
+    def save(self, commit=True):
+        data = self.clean()
+
+        PokemonTeam.objects.create(team=Team.objects.last(), pokemon=data["pokemon_1"], order=1)
+        PokemonTeam.objects.create(team=Team.objects.last(), pokemon=data["pokemon_2"], order=2)
+        PokemonTeam.objects.create(team=Team.objects.last(), pokemon=data["pokemon_3"], order=3)
+        instance = super().save(commit=False)
+        instance.some_flag = True
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance
