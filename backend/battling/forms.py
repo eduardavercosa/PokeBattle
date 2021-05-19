@@ -58,13 +58,8 @@ class CreateTeamForm(forms.ModelForm):
     def save(self, commit=True):
         data = self.clean()
 
-        PokemonTeam.objects.create(team=Team.objects.last(), pokemon=data["pokemon_1"], order=1)
-        PokemonTeam.objects.create(team=Team.objects.last(), pokemon=data["pokemon_2"], order=2)
-        PokemonTeam.objects.create(team=Team.objects.last(), pokemon=data["pokemon_3"], order=3)
-        instance = super().save(commit=False)
-        instance.some_flag = True
-        if commit:
-            instance.save()
-            self.save_m2m()
+        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_1"], order=1)
+        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_2"], order=2)
+        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_3"], order=3)
 
-        return instance
+        return self.instance

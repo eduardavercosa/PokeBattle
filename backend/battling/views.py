@@ -25,9 +25,11 @@ class CreateBattle(CreateView):
         form.instance.creator = self.request.user
         battle = form.save()
 
-        team = Team.objects.create(battle=battle, trainer=self.request.user)
+        team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        return HttpResponseRedirect(reverse_lazy("create_team", args=(team.id,)))
+        Team.objects.create(battle=battle, trainer=battle.opponent)
+
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
 
 
 class CreateTeam(UpdateView):
