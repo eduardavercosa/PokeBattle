@@ -23,19 +23,16 @@ class CreateTeamForm(forms.ModelForm):
     pokemon_1 = forms.ModelChoiceField(
         label="Pokemon 1",
         queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
         required=True,
     )
     pokemon_2 = forms.ModelChoiceField(
         label="Pokemon 2",
         queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
         required=True,
     )
     pokemon_3 = forms.ModelChoiceField(
         label="Pokemon 3",
         queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
         required=True,
     )
 
