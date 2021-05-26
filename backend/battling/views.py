@@ -59,9 +59,7 @@ class CreateTeam(UpdateView):
 class DeleteTeam(DeleteView):
     template_name = "battling/delete_team.html"
     success_url = reverse_lazy("home")
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Team, id=self.kwargs["pk"])
+    queryset = Team.objects.all()
 
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
