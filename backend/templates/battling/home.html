@@ -1,7 +1,12 @@
 {% extends "battling/base.html" %}
 
 {% block content %}
-  <a class="button_battle"  href="{% url 'create_battle' %}" role="button">
-    <p class="text_button">Create a new battle</p>
-  </a>
+{% for message in messages %}
+<div class="messages">
+  {{message}}
+</div>
+{% endfor %}
+<a class="button_battle" href="{% url 'create_battle' %}" role="button">
+  <p class="text_button">Create a new battle</p>
+</a>
 {% endblock %}

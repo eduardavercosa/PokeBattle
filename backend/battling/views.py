@@ -1,72 +1,79 @@
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
 
-from battling.forms import CreatorForm, OpponentForm
-from battling.models import Battle
-from services.battles import run_battle_and_send_email
+from battling.forms import CreateBattleForm, CreateTeamForm
+from battling.models import Battle, Team
+
+
+# from services.battles import run_battle_and_send_email
 
 
 class Home(TemplateView):
     template_name = "battling/home.html"
 
 
-class Invite(TemplateView):
-    template_name = "battling/invite.html"
-
-
-class Opponent(TemplateView):  # will become an email
-    template_name = "battling/opponent.html"
-
-
-class BattleEnd(TemplateView):
-    template_name = "battling/battle_end.html"
-
-
 class CreateBattle(CreateView):
     model = Battle
-    form_class = CreatorForm
+    form_class = CreateBattleForm
     template_name = "battling/create_battle.html"
-    success_url = reverse_lazy("invite")
 
     def form_valid(self, form):
-        pokemon = form.cleaned_data
+        form.instance.creator = self.request.user
+        battle = form.save()
 
-        form.instance.pokemon_1 = pokemon["creator_pokemon_1"]
-        form.instance.pokemon_2 = pokemon["creator_pokemon_2"]
-        form.instance.pokemon_3 = pokemon["creator_pokemon_3"]
+        team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        form.instance.save()
+        Team.objects.create(battle=battle, trainer=battle.opponent)
+
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
+
+
+class CreateTeam(UpdateView):
+    model = Team
+    form_class = CreateTeamForm
+    template_name = "battling/create_team.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
+        battle = self.get_object().battle
+        battle_creator = battle.creator
+
+        if self.request.user == battle_creator:
+            messages.success(self.request, "Your battle was created!")
+
+        else:
+            messages.success(self.request, "Battle ended! Check e-mail for results.")
+
+            # run_battle_and_send_email(battle)
 
         return super().form_valid(form)
 
 
-class EnterBattle(UpdateView):
+class EditBattle(UpdateView):
     model = Battle
-    form_class = OpponentForm
-    template_name = "battling/enter_battle.html"
-    success_url = reverse_lazy("battle_end")
+    form_class = CreateBattleForm
+    template_name = "battling/edit_battle.html"
 
     def get_battle(self):
-        id_ = Battle.objects.last().id
-        return get_object_or_404(Battle, id=id_)
+        return get_object_or_404(Battle, id=self.kwargs["pk"])
 
     def form_valid(self, form):
-        pokemon = form.cleaned_data
+        battle = self.get_battle()
 
-        form.instance.pokemon_1 = pokemon["opponent_pokemon_1"]
-        form.instance.pokemon_2 = pokemon["opponent_pokemon_2"]
-        form.instance.pokemon_3 = pokemon["opponent_pokemon_3"]
+        team = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        form.instance.save()
+        battle = form.save()
 
-        form.instance.battle_id = self.get_battle().id
-        run_battle_and_send_email(form.instance.battle_id)
-
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(team.id,)))
 
 
-# Had to change it, otherwise it wouldn't commit! But it's not ready
-class DetailBattle(TemplateView):
+class DetailBattle(DetailView):
     template_name = "battling/battle_details.html"
+    model = Battle
+
+    def get_battle(self):
+        return get_object_or_404(Battle, id=self.kwargs["pk"])
