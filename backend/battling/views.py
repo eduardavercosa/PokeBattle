@@ -7,10 +7,8 @@ from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, Team
+from services.battles import get_battle_winner
 from services.email import send_battle_invite
-
-
-# from services.battles import run_battle_and_send_email
 
 
 class Home(TemplateView):
@@ -51,7 +49,7 @@ class CreateTeam(UpdateView):
         else:
             messages.success(self.request, "Battle ended! Check e-mail for results.")
 
-            # run_battle_and_send_email(battle)
+            get_battle_winner(battle)
 
         return super().form_valid(form)
 
