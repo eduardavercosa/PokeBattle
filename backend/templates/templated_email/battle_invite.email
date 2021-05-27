@@ -1,0 +1,10 @@
+{% block subject %}PokeBattle: Battle invite!{% endblock %}
+{% block html %}
+  <h3>Hello, <b>{{battle_opponent}}</b>.</h3>
+
+  <h3><b>{{battle_creator}}</b> has challenged you!</h3>
+
+<a href="{{battle_delete_url}}">Refuse</a>
+<a href="{{battle_invite_url}}">Accept</a>
+
+{% endblock %}

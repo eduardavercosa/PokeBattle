@@ -6,6 +6,32 @@ from django.urls import reverse
 from templated_email import send_templated_mail
 
 
+def send_battle_invite(battle, team_opponent_id):
+    battle_invite_path = reverse(
+        "create_team",
+        args=[team_opponent_id],
+    )
+    battle_invite_url = urljoin(settings.HOST, battle_invite_path)
+
+    battle_delete_path = reverse(
+        "delete_team",
+        args=[team_opponent_id],
+    )
+    battle_delete_url = urljoin(settings.HOST, battle_delete_path)
+
+    send_templated_mail(
+        template_name="battle_invite",
+        from_email="eduardavercosa@vinta.com.br",
+        recipient_list=[battle.opponent.email],
+        context={
+            "battle_creator": battle.creator.email.split("@")[0],
+            "battle_opponent": battle.opponent.email.split("@")[0],
+            "battle_invite_url": battle_invite_url,
+            "battle_delete_url": battle_delete_url,
+        },
+    )
+
+
 def send_battle_result(battle, creator_pokemon_list, opponent_pokemon_list):
     battle_detail_path = reverse("battle_details", args=None)
     battle_details_url = urljoin(settings.HOST, battle_detail_path)
