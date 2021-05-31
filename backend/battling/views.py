@@ -6,9 +6,9 @@ from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
-from battling.models import Battle, Team
+from battling.models import Battle, PokemonTeam, Team
 from services.battles import get_battle_winner
-from services.email import send_battle_invite
+from services.email import send_battle_invite, send_battle_result
 
 
 class Home(TemplateView):
@@ -49,7 +49,17 @@ class CreateTeam(UpdateView):
         else:
             messages.success(self.request, "Battle ended! Check e-mail for results.")
 
+            creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+            creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
+            creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
+
+            opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+            opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
+            opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
+
             get_battle_winner(battle)
+
+            send_battle_result(battle, creator_team, opponent_team)
 
         return super().form_valid(form)
 
@@ -66,8 +76,34 @@ class DeleteTeam(DeleteView):
 
 
 class DetailBattle(DetailView):
-    template_name = "battling/battle_details.html"
+    template_name = "battling/battle_detail.html"
     model = Battle
 
-    def get_battle(self):
-        return get_object_or_404(Battle, id=self.kwargs["pk"])
+    def get_object(self, queryset=None):
+        battle = get_object_or_404(Battle, id=self.kwargs["pk"])
+
+        return battle
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        battle = self.get_object()
+
+        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+        creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
+
+        context["creator_team"] = [
+            creator_pokemon[0].pokemon,
+            creator_pokemon[1].pokemon,
+            creator_pokemon[2].pokemon,
+        ]
+
+        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+        opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
+
+        context["opponent_team"] = [
+            opponent_pokemon[0].pokemon,
+            opponent_pokemon[1].pokemon,
+            opponent_pokemon[2].pokemon,
+        ]
+
+        return context
