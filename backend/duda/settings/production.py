@@ -25,6 +25,8 @@ MEDIA_URL = "/media/"
 
 SERVER_EMAIL = "eduardavercosa@vinta.com.br"
 
+HOST = "dudapokebattle.herokuapp.com"
+
 EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_HOST_USER = config("SENDGRID_USERNAME")
 EMAIL_HOST_PASSWORD = config("SENDGRID_PASSWORD")
