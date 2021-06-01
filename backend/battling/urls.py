@@ -1,16 +1,12 @@
 from django.urls import path
 
-from battling.views import BattleEnd, CreateBattle, EnterBattle, Home, Invite, Opponent
-
-from . import views
+from battling.views import CreateBattle, CreateTeam, DeleteTeam, DetailBattle, Home
 
 
 urlpatterns = [
     path("", Home.as_view(), name="home"),
-    path("create_battle", CreateBattle.as_view(), name="create_battle"),
-    path("invite/", Invite.as_view(), name="invite"),
-    path("opponent/", Opponent.as_view(), name="opponent"),
-    path("enter_battle", EnterBattle.as_view(), name="enter_battle"),
-    path("battle_end/", BattleEnd.as_view(), name="battle_end"),
-    path("battle_details/", views.battle_details, name="battle_details"),
+    path("battle/new/", CreateBattle.as_view(), name="create_battle"),
+    path("team/<int:pk>/edit/", CreateTeam.as_view(), name="create_team"),
+    path("team/<int:pk>/delete/", DeleteTeam.as_view(), name="delete_team"),
+    path("battle/<int:pk>/detail/", DetailBattle.as_view(), name="battle_details"),
 ]

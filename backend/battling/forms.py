@@ -1,27 +1,38 @@
 from django import forms
 
-from battling.models import Battle
+from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import valid_team
 from pokemon.models import Pokemon
 
 
-class PokemonForm(forms.ModelForm):
-    creator_pokemon_1 = forms.ModelChoiceField(
+class CreateBattleForm(forms.ModelForm):
+    class Meta:
+        model = Battle
+        fields = ("opponent",)
+
+
+class CreateTeamForm(forms.ModelForm):
+    class Meta:
+        model = Team
+        fields = [
+            "pokemon_1",
+            "pokemon_2",
+            "pokemon_3",
+        ]
+
+    pokemon_1 = forms.ModelChoiceField(
         label="Pokemon 1",
         queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
         required=True,
     )
-    creator_pokemon_2 = forms.ModelChoiceField(
+    pokemon_2 = forms.ModelChoiceField(
         label="Pokemon 2",
         queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
         required=True,
     )
-    creator_pokemon_3 = forms.ModelChoiceField(
+    pokemon_3 = forms.ModelChoiceField(
         label="Pokemon 3",
         queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
         required=True,
     )
 
@@ -30,9 +41,9 @@ class PokemonForm(forms.ModelForm):
 
         is_pokemon_sum_valid = valid_team(
             [
-                self.cleaned_data["creator_pokemon_1"],
-                self.cleaned_data["creator_pokemon_2"],
-                self.cleaned_data["creator_pokemon_3"],
+                self.cleaned_data["pokemon_1"],
+                self.cleaned_data["pokemon_2"],
+                self.cleaned_data["pokemon_3"],
             ]
         )
 
@@ -41,57 +52,15 @@ class PokemonForm(forms.ModelForm):
 
         return cleaned_data
 
+    def save(self, commit=True):
+        data = self.clean()
+        pokemon = self.instance.pokemons
 
-class PokemonForm2(forms.ModelForm):
-    opponent_pokemon_1 = forms.ModelChoiceField(
-        label="Pokemon 1",
-        queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
-        required=True,
-    )
-    opponent_pokemon_2 = forms.ModelChoiceField(
-        label="Pokemon 2",
-        queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
-        required=True,
-    )
-    opponent_pokemon_3 = forms.ModelChoiceField(
-        label="Pokemon 3",
-        queryset=Pokemon.objects.all(),
-        widget=forms.TextInput,
-        required=True,
-    )
+        if pokemon:
+            self.instance.pokemons.clear()
 
-    def clean(self):
-        cleaned_data = super().clean()
+        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_1"], order=1)
+        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_2"], order=2)
+        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_3"], order=3)
 
-        is_pokemon_sum_valid = valid_team(
-            [
-                self.cleaned_data["opponent_pokemon_1"],
-                self.cleaned_data["opponent_pokemon_2"],
-                self.cleaned_data["opponent_pokemon_3"],
-            ]
-        )
-
-        if not is_pokemon_sum_valid:
-            raise forms.ValidationError("ERROR: Your pokemons sum more than 600 points.")
-
-        return cleaned_data
-
-
-class CreatorForm(PokemonForm):
-    class Meta:
-        model = Battle
-        fields = (
-            "creator",
-            "opponent",
-            "creator_pokemon_1",
-            "creator_pokemon_2",
-            "creator_pokemon_3",
-        )
-
-
-class OpponentForm(PokemonForm2):
-    class Meta:
-        model = Battle
-        fields = ["opponent_pokemon_1", "opponent_pokemon_2", "opponent_pokemon_3"]
+        return self.instance
