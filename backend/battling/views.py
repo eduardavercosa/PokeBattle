@@ -28,7 +28,7 @@ class CreateBattle(CreateView):
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        # team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
+        Team.objects.create(battle=battle, trainer=battle.opponent)
 
         # send_battle_invite(battle, team_opponent.id)
 
