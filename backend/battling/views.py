@@ -8,7 +8,9 @@ from django.views.generic.base import TemplateView
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, PokemonTeam, Team
 from services.battles import get_battle_winner
-from services.email import send_battle_invite, send_battle_result
+
+
+# from services.email import send_battle_invite, send_battle_result
 
 
 class Home(TemplateView):
@@ -26,9 +28,9 @@ class CreateBattle(CreateView):
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
+        # team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
 
-        send_battle_invite(battle, team_opponent.id)
+        # send_battle_invite(battle, team_opponent.id)
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
 
@@ -49,17 +51,17 @@ class CreateTeam(UpdateView):
         else:
             messages.success(self.request, "Battle ended! Check e-mail for results.")
 
-            creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
-            creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
-            creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
+            # creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+            # creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
+            # creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
 
-            opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
-            opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
-            opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
+            # opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+            # opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
+            # opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
 
             get_battle_winner(battle)
 
-            send_battle_result(battle, creator_team, opponent_team)
+            # send_battle_result(battle, creator_team, opponent_team)
 
         return super().form_valid(form)
 
