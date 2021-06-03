@@ -58,6 +58,7 @@ def get_battle_winner(battle):
     )
 
     battle.winner = winner
+    battle.status = "SETTLED"
     battle.save()
 
     return winner
