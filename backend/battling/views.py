@@ -34,6 +34,9 @@ class CreateBattle(CreateView):
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
 
+    def get_initial(self):
+        return {"creator_id": self.request.user.id}
+
 
 class CreateTeam(UpdateView):
     model = Team

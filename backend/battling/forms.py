@@ -3,12 +3,17 @@ from django import forms
 from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import valid_team
 from pokemon.models import Pokemon
+from users.models import User
 
 
 class CreateBattleForm(forms.ModelForm):
     class Meta:
         model = Battle
         fields = ("opponent",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["opponent"].queryset = User.objects.exclude(id=self.initial["creator_id"])
 
 
 class CreateTeamForm(forms.ModelForm):
