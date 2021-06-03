@@ -92,7 +92,15 @@ class OnGoingBattles(ListView):  # pylint: disable=too-many-ancestors
     template_name = "battling/ongoing_battles.html"
     model = Battle
 
-    queryset = Battle.objects.filter(status="ONGOING")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["created_battles"] = Battle.objects.filter(status="ONGOING").filter(
+            creator=self.request.user
+        )
+        context["invited_battles"] = Battle.objects.filter(status="ONGOING").filter(
+            opponent=self.request.user
+        )
+        return context
 
 
 class DetailBattle(DetailView):
@@ -127,5 +135,7 @@ class DetailBattle(DetailView):
                 opponent_pokemon[1].pokemon,
                 opponent_pokemon[2].pokemon,
             ]
+
+        context["user"] = self.request.user
 
         return context
