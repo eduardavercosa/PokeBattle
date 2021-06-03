@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
@@ -24,6 +24,7 @@ class CreateBattle(CreateView):
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
+        form.instance.status = "ONGOING"
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
@@ -80,6 +81,20 @@ class DeleteTeam(DeleteView):
         return reverse_lazy("home")
 
 
+class SettledBattles(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/settled_battles.html"
+    model = Battle
+
+    queryset = Battle.objects.filter(status="SETTLED")
+
+
+class OnGoingBattles(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/ongoing_battles.html"
+    model = Battle
+
+    queryset = Battle.objects.filter(status="ONGOING")
+
+
 class DetailBattle(DetailView):
     template_name = "battling/battle_detail.html"
     model = Battle
@@ -96,19 +111,21 @@ class DetailBattle(DetailView):
         creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
         creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
 
-        context["creator_team"] = [
-            creator_pokemon[0].pokemon,
-            creator_pokemon[1].pokemon,
-            creator_pokemon[2].pokemon,
-        ]
+        if creator_pokemon:
+            context["creator_team"] = [
+                creator_pokemon[0].pokemon,
+                creator_pokemon[1].pokemon,
+                creator_pokemon[2].pokemon,
+            ]
 
         opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
         opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
 
-        context["opponent_team"] = [
-            opponent_pokemon[0].pokemon,
-            opponent_pokemon[1].pokemon,
-            opponent_pokemon[2].pokemon,
-        ]
+        if opponent_pokemon:
+            context["opponent_team"] = [
+                opponent_pokemon[0].pokemon,
+                opponent_pokemon[1].pokemon,
+                opponent_pokemon[2].pokemon,
+            ]
 
         return context
