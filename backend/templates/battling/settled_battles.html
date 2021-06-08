@@ -19,6 +19,9 @@
 </head>
 
 <body>
+  <a class="button_battle" href="{% url 'home' %}" role="button">
+    <p class="text_button">Back</p>
+  </a>
   <div>
     <h1>Settled Battles</h1>
     {% if object_list.all %}
@@ -31,7 +34,6 @@
     <h1>There are no settled battles yet!</h1>
     {% endif %}
   </div>
-
 </body>
 
 </html>
