@@ -1,12 +1,16 @@
 {% extends "battling/base.html" %}
+{% load battling_tags %}
 
 {% block content %}
 <div class="teste">
   <h1>Result</h1>
-  <h3>{{battle.winner.email}} won!</h3>
 
-  {{battle.creator.email}} team:
+  {% if battle.winner %}
+  <h3>{{battle.winner}} won!</h3>
+  {% endif %}
 
+  {% if user == battle.creator or battle.status == "SETTLED" %}
+  {{battle.creator}} team:
   <table>
     <tr>
       <th>Pokemon</th>
@@ -23,10 +27,16 @@
       <th> {{pokemon.hp}}</th>
     </tr>
     {% endfor %}
+    {% else %}
+    <tr>
+      {{battle.creator}} has challenged you.
+    </tr>
+    {% endif %}
 
   </table>
 
-  {{battle.opponent.email}} team:
+  {% if opponent_team %}
+  {{battle.opponent}} team:
 
   <table>
     <tr>
@@ -44,8 +54,30 @@
       <th> {{pokemon.hp}}</th>
     </tr>
     {% endfor %}
+    {% elif user == battle.creator %}
+    <tr>
+      {{battle.opponent}} hasn't chosen yet.
+    </tr>
+    {% else %}
+    <tr>
+      Click "Edit" to choose your pokemons!
+    </tr>
+    {% endif %}
 
   </table>
+  {% if battle.status == "ONGOING" %}
+  <a class="button_next" href="{% url 'delete_battle' pk=battle.id %}" role="button">
+    <p class="text_button">Delete</p>
+  </a>
+
+  <a class="button_next" href="{% url 'create_team' battle|get_team_id:user %}" role="button">
+    <p class="text_button">Edit</p>
+  </a>
+  {% endif %}
+
+  <a class="button_next" role="button" onClick="javascript:history.go(-1)">
+    <p class="text_button">Back</p>
+  </a>
 
 </div>
 {% endblock %}
