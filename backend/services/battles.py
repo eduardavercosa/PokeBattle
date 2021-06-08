@@ -35,11 +35,11 @@ def battle_round(creator_pokemon, opponent_pokemon):
 def get_battle_winner(battle):
     battle_score = {"creator": 0, "opponent": 0}
 
-    # get the batween the battle and the trainers
+    # get the team related to the battle and the trainers
     creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
     opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
 
-    # get the pokemons names from each instance
+    # get the pokemons names from each team
     creator_team = creator.pokemons.all()
     opponent_team = opponent.pokemons.all()
 
