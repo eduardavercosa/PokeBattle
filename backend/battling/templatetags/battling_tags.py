@@ -1,6 +1,6 @@
 from django import template
 
-from ..models import Team
+from battling.models import Team
 
 
 register = template.Library()
