@@ -95,10 +95,10 @@ class DetailBattle(DetailView):
         context = super().get_context_data(**kwargs)
         battle = self.get_object()
 
-        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+        creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
         context["creator_team"] = creator[0].pokemons.all()
 
-        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+        opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
         context["opponent_team"] = opponent[0].pokemons.all()
 
         return context
