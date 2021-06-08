@@ -2,10 +2,11 @@
 
 {% block content %}
 <div class="teste">
-  <h1>Resultado</h1>
-  {{winner}} won!
+  <h1>Result</h1>
+  <h3>{{battle.winner.email}} won!</h3>
 
-  <h3>{{creator}}'s team was:</h3>
+  {{battle.creator.email}} team:
+
   <table>
     <tr>
       <th>Pokemon</th>
@@ -14,7 +15,7 @@
       <th>hp</th>
     </tr>
 
-    {% for pokemon in creator_pkms %}
+    {% for pokemon in creator_team %}
     <tr>
       <th> {{pokemon.name}}</th>
       <th> {{pokemon.attack}}</th>
@@ -25,7 +26,8 @@
 
   </table>
 
-  <h3>{{opponent}}'s team was:</h3>
+  {{battle.opponent.email}} team:
+
   <table>
     <tr>
       <th>Pokemon</th>
@@ -34,7 +36,7 @@
       <th>hp</th>
     </tr>
 
-    {% for pokemon in opponent_pkms %}
+    {% for pokemon in opponent_team %}
     <tr>
       <th> {{pokemon.name}}</th>
       <th> {{pokemon.attack}}</th>

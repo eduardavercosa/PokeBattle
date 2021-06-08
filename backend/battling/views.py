@@ -1,16 +1,12 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, Team
-from services.email import send_battle_invite
-
-
-# from services.battles import run_battle_and_send_email
+from services.battles import get_battle_winner
 
 
 class Home(TemplateView):
@@ -28,11 +24,12 @@ class CreateBattle(CreateView):
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
-
-        send_battle_invite(battle, team_opponent.id)
+        Team.objects.create(battle=battle, trainer=battle.opponent)
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
+
+    def get_initial(self):
+        return {"creator_id": self.request.user.id}
 
 
 class CreateTeam(UpdateView):
@@ -51,7 +48,7 @@ class CreateTeam(UpdateView):
         else:
             messages.success(self.request, "Battle ended! Check e-mail for results.")
 
-            # run_battle_and_send_email(battle)
+            get_battle_winner(battle)
 
         return super().form_valid(form)
 
@@ -68,8 +65,17 @@ class DeleteTeam(DeleteView):
 
 
 class DetailBattle(DetailView):
-    template_name = "battling/battle_details.html"
+    template_name = "battling/battle_detail.html"
     model = Battle
 
-    def get_battle(self):
-        return get_object_or_404(Battle, id=self.kwargs["pk"])
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        battle = self.get_object()
+
+        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+        context["creator_team"] = creator[0].pokemons.all()
+
+        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+        context["opponent_team"] = opponent[0].pokemons.all()
+
+        return context

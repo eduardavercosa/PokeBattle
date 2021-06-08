@@ -3,12 +3,17 @@ from django import forms
 from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import valid_team
 from pokemon.models import Pokemon
+from users.models import User
 
 
 class CreateBattleForm(forms.ModelForm):
     class Meta:
         model = Battle
         fields = ("opponent",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["opponent"].queryset = User.objects.exclude(id=self.initial["creator_id"])
 
 
 class CreateTeamForm(forms.ModelForm):
@@ -54,10 +59,6 @@ class CreateTeamForm(forms.ModelForm):
 
     def save(self, commit=True):
         data = self.clean()
-        pokemon = self.instance.pokemons
-
-        if pokemon:
-            self.instance.pokemons.clear()
 
         PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_1"], order=1)
         PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_2"], order=2)
