@@ -59,29 +59,36 @@ class DeleteBattle(DeleteView):
     success_url = reverse_lazy("home")
     queryset = Battle.objects.all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["created_battles"] = Battle.objects.filter(creator=self.request.user)
+        context["invited_battles"] = Battle.objects.filter(opponent=self.request.user)
+
+        return context
+
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
 
         return reverse_lazy("home")
 
 
-class SettledBattles(ListView):  # pylint: disable=too-many-ancestors
-    template_name = "battling/settled_battles.html"
-    model = Battle
-
-    queryset = Battle.objects.filter(status="SETTLED")
-
-
-class OnGoingBattles(ListView):  # pylint: disable=too-many-ancestors
-    template_name = "battling/ongoing_battles.html"
+class BattleList(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/battle_list.html"
     model = Battle
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["created_battles"] = Battle.objects.filter(status="ONGOING").filter(
+        context["settled_created_battles"] = Battle.objects.filter(status="SETTLED").filter(
             creator=self.request.user
         )
-        context["invited_battles"] = Battle.objects.filter(status="ONGOING").filter(
+        context["settled_invited_battles"] = Battle.objects.filter(status="SETTLED").filter(
+            opponent=self.request.user
+        )
+        context["ongoing_created_battles"] = Battle.objects.filter(status="ONGOING").filter(
+            creator=self.request.user
+        )
+        context["ongoing_invited_battles"] = Battle.objects.filter(status="ONGOING").filter(
             opponent=self.request.user
         )
         return context

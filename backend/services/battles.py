@@ -36,12 +36,12 @@ def get_battle_winner(battle):
     battle_score = {"creator": 0, "opponent": 0}
 
     # get the batween the battle and the trainers
-    creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
-    opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+    creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
+    opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
 
     # get the relation between the trainer's team and its pokemons
-    creator_pokemon_list = PokemonTeam.objects.filter(team=creator[0])
-    opponent_pokemon_list = PokemonTeam.objects.filter(team=opponent[0])
+    creator_pokemon_list = PokemonTeam.objects.filter(team=creator)
+    opponent_pokemon_list = PokemonTeam.objects.filter(team=opponent)
 
     # get the pokemons names from each instance
     creator_team = [pokemon.pokemon for pokemon in creator_pokemon_list]
