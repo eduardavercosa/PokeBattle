@@ -1,4 +1,4 @@
-from battling.models import PokemonTeam, Team
+from battling.models import Team
 
 
 def battle_round(creator_pokemon, opponent_pokemon):
