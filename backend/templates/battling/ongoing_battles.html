@@ -28,24 +28,24 @@
 
     <h1>Battles I created!</h1>
     {% if created_battles.all %}
-    {% for instance in created_battles %}
-    <li>
-      <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-    </li>
-    {% endfor %}
+      {% for instance in created_battles %}
+        <li>
+          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+        </li>
+      {% endfor %}
     {% else %}
-    <h1>There are no battles yet!</h1>
+      <h1>There are no battles yet!</h1>
     {% endif %}
 
     <h1>Battles I was invited!</h1>
     {% if invited_battles.all %}
-    {% for instance in invited_battles %}
-    <li>
-      <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-    </li>
-    {% endfor %}
+      {% for instance in invited_battles %}
+        <li>
+          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+        </li>
+      {% endfor %}
     {% else %}
-    <h1>There are no battles yet!</h1>
+      <h1>There are no battles yet!</h1>
     {% endif %}
   </div>
 
