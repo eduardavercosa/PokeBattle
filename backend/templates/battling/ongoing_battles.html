@@ -22,13 +22,13 @@
   <div>
     <h1>Ongoing Battles</h1>
     {% if object_list.all %}
-    {% for instance in object_list %}
-    <li>
-      <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-    </li>
-    {% endfor %}
-    {% else %}
-    <h1>There are no ongoing battles!</h1>
+      {% for instance in object_list %}
+        <li>
+          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+        </li>
+      {% endfor %}
+      {% else %}
+        <h1>There are no ongoing battles!</h1>
     {% endif %}
   </div>
 
