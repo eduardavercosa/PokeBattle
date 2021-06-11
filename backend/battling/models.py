@@ -5,6 +5,9 @@ from pokemon.models import Pokemon
 from users.models import User
 
 
+STATUS_CHOICES = [("ONGOING", "Ongoing"), ("SETTLED", "Settled")]
+
+
 class Battle(models.Model):
     class BattleStatus(models.TextChoices):
         ONGOING = "OG", _("Ongoing")

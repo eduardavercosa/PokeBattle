@@ -54,7 +54,9 @@ def get_battle_winner(battle):
     )
 
     battle.winner = winner
+
     battle.status = Battle.BattleStatus.SETTLED
+
     battle.save()
 
     return winner

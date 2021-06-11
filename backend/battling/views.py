@@ -22,6 +22,7 @@ class CreateBattle(CreateView):
     def form_valid(self, form):
         form.instance.creator = self.request.user
         form.instance.status = Battle.BattleStatus.ONGOING
+
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
@@ -101,10 +102,10 @@ class DetailBattle(DetailView):
         context = super().get_context_data(**kwargs)
         battle = self.get_object()
 
-        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+        creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
         context["creator_team"] = creator[0].pokemons.all()
 
-        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+        opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
         context["opponent_team"] = opponent[0].pokemons.all()
 
         context["settled"] = Battle.BattleStatus.SETTLED
