@@ -21,7 +21,6 @@ class CreateBattle(CreateView):
     def form_valid(self, form):
         form.instance.creator = self.request.user
         form.instance.status = Battle.BattleStatus.ONGOING
-        print(form.instance.status)
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
