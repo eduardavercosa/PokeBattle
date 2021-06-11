@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
@@ -59,13 +60,12 @@ class DeleteBattle(DeleteView):
     success_url = reverse_lazy("home")
     queryset = Battle.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["created_battles"] = Battle.objects.filter(creator=self.request.user)
-        context["invited_battles"] = Battle.objects.filter(opponent=self.request.user)
-
-        return context
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(Q(creator=self.request.user) | Q(opponent=self.request.user))
+        )
 
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
@@ -107,5 +107,8 @@ class DetailBattle(DetailView):
 
         opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
         context["opponent_team"] = opponent[0].pokemons.all()
+
+        context["settled"] = Battle.BattleStatus.SETTLED
+        context["ongoing"] = Battle.BattleStatus.ONGOING
 
         return context

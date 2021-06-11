@@ -9,7 +9,7 @@
     <h3>{{battle.winner}} won!</h3>
   {% endif %}
 
-  {% if user == battle.creator or battle.status == "ST" %}
+  {% if user == battle.creator or battle.status == settled %}
     {{battle.creator}} team:
     <table>
       <tr>
@@ -65,7 +65,7 @@
     {% endif %}
 
   </table>
-  {% if battle.status == "ONGOING" %}
+  {% if battle.status == ongoing %}
     <a class="button_next" href="{% url 'delete_battle' pk=battle.id %}" role="button">
       <p class="text_button">Delete</p>
     </a>
