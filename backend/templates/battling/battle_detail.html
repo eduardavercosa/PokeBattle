@@ -9,7 +9,7 @@
     <h3>{{battle.winner}} won!</h3>
   {% endif %}
 
-  {% if user == battle.creator or battle.status == "SETTLED" %}
+  {% if user == battle.creator or battle.status == "ST" %}
     {{battle.creator}} team:
     <table>
       <tr>

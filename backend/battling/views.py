@@ -20,7 +20,8 @@ class CreateBattle(CreateView):
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
-        form.instance.status = "ONGOING"
+        form.instance.status = Battle.BattleStatus.ONGOING
+        print(form.instance.status)
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
@@ -79,16 +80,16 @@ class BattleList(ListView):  # pylint: disable=too-many-ancestors
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["settled_created_battles"] = Battle.objects.filter(status="SETTLED").filter(
+        context["settled_created_battles"] = Battle.objects.filter(status="ST").filter(
             creator=self.request.user
         )
-        context["settled_invited_battles"] = Battle.objects.filter(status="SETTLED").filter(
+        context["settled_invited_battles"] = Battle.objects.filter(status="ST").filter(
             opponent=self.request.user
         )
-        context["ongoing_created_battles"] = Battle.objects.filter(status="ONGOING").filter(
+        context["ongoing_created_battles"] = Battle.objects.filter(status="OG").filter(
             creator=self.request.user
         )
-        context["ongoing_invited_battles"] = Battle.objects.filter(status="ONGOING").filter(
+        context["ongoing_invited_battles"] = Battle.objects.filter(status="OG").filter(
             opponent=self.request.user
         )
         return context
