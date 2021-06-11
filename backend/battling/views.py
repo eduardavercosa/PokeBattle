@@ -80,18 +80,18 @@ class BattleList(ListView):  # pylint: disable=too-many-ancestors
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["settled_created_battles"] = Battle.objects.filter(status="ST").filter(
-            creator=self.request.user
-        )
-        context["settled_invited_battles"] = Battle.objects.filter(status="ST").filter(
-            opponent=self.request.user
-        )
-        context["ongoing_created_battles"] = Battle.objects.filter(status="OG").filter(
-            creator=self.request.user
-        )
-        context["ongoing_invited_battles"] = Battle.objects.filter(status="OG").filter(
-            opponent=self.request.user
-        )
+        context["settled_created_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.SETTLED
+        ).filter(creator=self.request.user)
+        context["settled_invited_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.SETTLED
+        ).filter(opponent=self.request.user)
+        context["ongoing_created_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.ONGOING
+        ).filter(creator=self.request.user)
+        context["ongoing_invited_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.ONGOING
+        ).filter(opponent=self.request.user)
         return context
 
 
