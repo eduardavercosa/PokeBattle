@@ -1,4 +1,4 @@
-from battling.models import Team
+from battling.models import Battle, Team
 
 
 def battle_round(creator_pokemon, opponent_pokemon):
@@ -54,7 +54,9 @@ def get_battle_winner(battle):
     )
 
     battle.winner = winner
-    battle.status = "SETTLED"
+
+    battle.status = Battle.BattleStatus.SETTLED
+
     battle.save()
 
     return winner

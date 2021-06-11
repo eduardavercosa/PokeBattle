@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
@@ -20,7 +21,8 @@ class CreateBattle(CreateView):
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
-        form.instance.status = "ONGOING"
+        form.instance.status = Battle.BattleStatus.ONGOING
+
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
@@ -57,7 +59,9 @@ class CreateTeam(UpdateView):
 class DeleteBattle(DeleteView):
     template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
-    queryset = Battle.objects.all()
+
+    def get_queryset(self):
+        return Battle.objects.filter(Q(creator=self.request.user) | Q(opponent=self.request.user))
 
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
@@ -65,25 +69,24 @@ class DeleteBattle(DeleteView):
         return reverse_lazy("home")
 
 
-class SettledBattles(ListView):  # pylint: disable=too-many-ancestors
-    template_name = "battling/settled_battles.html"
-    model = Battle
-
-    queryset = Battle.objects.filter(status="SETTLED")
-
-
-class OnGoingBattles(ListView):  # pylint: disable=too-many-ancestors
-    template_name = "battling/ongoing_battles.html"
+class BattleList(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/battle_list.html"
     model = Battle
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["created_battles"] = Battle.objects.filter(status="ONGOING").filter(
-            creator=self.request.user
-        )
-        context["invited_battles"] = Battle.objects.filter(status="ONGOING").filter(
-            opponent=self.request.user
-        )
+        context["settled_created_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.SETTLED
+        ).filter(creator=self.request.user)
+        context["settled_invited_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.SETTLED
+        ).filter(opponent=self.request.user)
+        context["ongoing_created_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.ONGOING
+        ).filter(creator=self.request.user)
+        context["ongoing_invited_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.ONGOING
+        ).filter(opponent=self.request.user)
         return context
 
 
@@ -100,5 +103,8 @@ class DetailBattle(DetailView):
 
         opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
         context["opponent_team"] = opponent[0].pokemons.all()
+
+        context["settled"] = Battle.BattleStatus.SETTLED
+        context["ongoing"] = Battle.BattleStatus.ONGOING
 
         return context

@@ -9,7 +9,8 @@
     <h3>{{battle.winner}} won!</h3>
   {% endif %}
 
-  {% if user == battle.creator or battle.status == "SETTLED" %}
+
+  {% if user == battle.creator or battle.status == settled %}
     {{battle.creator}} team:
     <table>
       <tr>
@@ -27,10 +28,10 @@
           <th> {{pokemon.hp}}</th>
         </tr>
       {% endfor %}
-      {% else %}
-        <tr>
-          {{battle.creator}} has challenged you.
-        </tr>
+    {% else %}
+      <tr>
+        {{battle.creator}} has challenged you.
+      </tr>
     {% endif %}
 
   </table>
@@ -54,18 +55,18 @@
           <th> {{pokemon.hp}}</th>
         </tr>
       {% endfor %}
-      {% elif user == battle.creator %}
-        <tr>
-          {{battle.opponent}} hasn't chosen yet.
-        </tr>
-      {% else %}
-        <tr>
-          Click "Edit" to choose your pokemons!
-        </tr>
+    {% elif user == battle.creator %}
+      <tr>
+        {{battle.opponent}} hasn't chosen yet.
+      </tr>
+    {% else %}
+      <tr>
+        Click "Edit" to choose your pokemons!
+      </tr>
     {% endif %}
 
   </table>
-  {% if battle.status == "ONGOING" %}
+  {% if battle.status == ongoing %}
     <a class="button_next" href="{% url 'delete_battle' pk=battle.id %}" role="button">
       <p class="text_button">Delete</p>
     </a>
@@ -78,6 +79,5 @@
   <a class="button_next" role="button" onClick="javascript:history.go(-1)">
     <p class="text_button">Back</p>
   </a>
-
 </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from pokemon.models import Pokemon
 from users.models import User
@@ -8,10 +9,22 @@ STATUS_CHOICES = [("ONGOING", "Ongoing"), ("SETTLED", "Settled")]
 
 
 class Battle(models.Model):
+    class BattleStatus(models.TextChoices):
+        ONGOING = "OG", _("Ongoing")
+        SETTLED = "ST", _("Settled")
+
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator_battles")
     opponent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="opponent_battles")
-    status = models.CharField(choices=STATUS_CHOICES, default="ONGOING", max_length=10, blank=True)
+    status = models.CharField(
+        max_length=10, choices=BattleStatus.choices, default=BattleStatus.ONGOING, blank=True
+    )
     winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="battle_win", null=True)
+
+    def is_upperclass(self):
+        return self.status in {
+            self.BattleStatus.ONGOING,
+            self.BattleStatus.SETTLED,
+        }
 
 
 class Team(models.Model):
