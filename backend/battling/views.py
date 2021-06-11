@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
@@ -20,6 +20,7 @@ class CreateBattle(CreateView):
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
+        form.instance.status = "ONGOING"
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
@@ -53,15 +54,37 @@ class CreateTeam(UpdateView):
         return super().form_valid(form)
 
 
-class DeleteTeam(DeleteView):
-    template_name = "battling/delete_team.html"
+class DeleteBattle(DeleteView):
+    template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
-    queryset = Team.objects.all()
+    queryset = Battle.objects.all()
 
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
 
         return reverse_lazy("home")
+
+
+class SettledBattles(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/settled_battles.html"
+    model = Battle
+
+    queryset = Battle.objects.filter(status="SETTLED")
+
+
+class OnGoingBattles(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/ongoing_battles.html"
+    model = Battle
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["created_battles"] = Battle.objects.filter(status="ONGOING").filter(
+            creator=self.request.user
+        )
+        context["invited_battles"] = Battle.objects.filter(status="ONGOING").filter(
+            opponent=self.request.user
+        )
+        return context
 
 
 class DetailBattle(DetailView):
@@ -72,10 +95,10 @@ class DetailBattle(DetailView):
         context = super().get_context_data(**kwargs)
         battle = self.get_object()
 
-        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+        creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
         context["creator_team"] = creator[0].pokemons.all()
 
-        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+        opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
         context["opponent_team"] = opponent[0].pokemons.all()
 
         return context
