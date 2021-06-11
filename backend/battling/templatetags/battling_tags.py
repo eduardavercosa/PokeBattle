@@ -3,7 +3,6 @@ from django import template
 from battling.models import Team
 
 
-
 register = template.Library()
 
 
