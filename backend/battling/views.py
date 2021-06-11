@@ -61,11 +61,7 @@ class DeleteBattle(DeleteView):
     success_url = reverse_lazy("home")
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .filter(Q(creator=self.request.user) | Q(opponent=self.request.user))
-        )
+        return Battle.objects.filter(Q(creator=self.request.user) | Q(opponent=self.request.user))
 
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
