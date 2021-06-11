@@ -58,7 +58,6 @@ class CreateTeam(UpdateView):
 class DeleteBattle(DeleteView):
     template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
-    queryset = Battle.objects.all()
 
     def get_queryset(self):
         return (
