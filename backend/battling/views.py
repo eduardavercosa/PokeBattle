@@ -46,26 +46,23 @@ class CreateTeam(UpdateView):
 
     def form_valid(self, form):
         battle = self.get_object().battle
-        battle_creator = battle.creator
         form.save()
 
-        if self.request.user == battle_creator:
-            messages.success(self.request, "Your battle was created!")
+        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+        creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
+        creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
+
+        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+        opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
+        opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
+
+        if creator_pokemon and opponent_pokemon:
+            get_battle_winner(battle)
+            send_battle_result(battle, creator_team, opponent_team)
+            messages.success(self.request, "Battle ended! Check your e-mail for results.")
 
         else:
-            messages.success(self.request, "Battle ended! Check e-mail for results.")
-
-            get_battle_winner(battle)
-
-            creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
-            creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
-            creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
-
-            opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
-            opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
-            opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
-
-            send_battle_result(battle, creator_team, opponent_team)
+            messages.success(self.request, "You'll receive an email when the battle is over.")
 
         return HttpResponseRedirect(reverse_lazy("home"))
 
