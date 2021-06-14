@@ -42,7 +42,6 @@ class CreateTeam(UpdateView):
     model = Team
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
-    success_url = reverse_lazy("home")
 
     def form_valid(self, form):
         battle = self.get_object().battle
