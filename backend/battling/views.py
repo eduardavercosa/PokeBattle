@@ -6,8 +6,9 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
-from battling.models import Battle, Team
+from battling.models import Battle, PokemonTeam, Team
 from services.battles import get_battle_winner
+from services.email import send_battle_invite, send_battle_result
 
 
 class Home(TemplateView):
@@ -27,7 +28,9 @@ class CreateBattle(CreateView):
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        Team.objects.create(battle=battle, trainer=battle.opponent)
+        team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
+
+        send_battle_invite(battle, team_opponent.id)
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
 
@@ -44,6 +47,7 @@ class CreateTeam(UpdateView):
     def form_valid(self, form):
         battle = self.get_object().battle
         battle_creator = battle.creator
+        form.save()
 
         if self.request.user == battle_creator:
             messages.success(self.request, "Your battle was created!")
@@ -53,7 +57,17 @@ class CreateTeam(UpdateView):
 
             get_battle_winner(battle)
 
-        return super().form_valid(form)
+            creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
+            creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
+            creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
+
+            opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
+            opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
+            opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
+
+            send_battle_result(battle, creator_team, opponent_team)
+
+        return HttpResponseRedirect(reverse_lazy("home"))
 
 
 class DeleteBattle(DeleteView):
@@ -99,10 +113,10 @@ class DetailBattle(DetailView):
         battle = self.get_object()
 
         creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
-        context["creator_team"] = creator[0].pokemons.all()
+        context["creator_team"] = creator.pokemons.all()
 
         opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
-        context["opponent_team"] = opponent[0].pokemons.all()
+        context["opponent_team"] = opponent.pokemons.all()
 
         context["settled"] = Battle.BattleStatus.SETTLED
         context["ongoing"] = Battle.BattleStatus.ONGOING
