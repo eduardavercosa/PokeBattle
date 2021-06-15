@@ -6,7 +6,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
-from battling.models import Battle, PokemonTeam, Team
+from battling.models import Battle, Team
 from services.battles import get_battle_winner
 from services.email import send_battle_invite, send_battle_result
 
@@ -47,17 +47,23 @@ class CreateTeam(UpdateView):
         battle = self.get_object().battle
         form.save()
 
-        creator = Team.objects.filter(battle=battle, trainer=battle.creator.id)
-        creator_pokemon = PokemonTeam.objects.filter(team=creator[0])
-        creator_team = [pokemon.pokemon for pokemon in creator_pokemon]
+        creator = (
+            Team.objects.filter(battle=battle, trainer=battle.creator)
+            .prefetch_related("pokemons")
+            .get()
+        )
+        creator_pokemons = creator.pokemons.all()
 
-        opponent = Team.objects.filter(battle=battle, trainer=battle.opponent.id)
-        opponent_pokemon = PokemonTeam.objects.filter(team=opponent[0])
-        opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon]
+        opponent = (
+            Team.objects.filter(battle=battle, trainer=battle.opponent)
+            .prefetch_related("pokemons")
+            .get()
+        )
+        opponent_pokemons = opponent.pokemons.all()
 
-        if creator_pokemon and opponent_pokemon:
+        if creator_pokemons and opponent_pokemons:
             get_battle_winner(battle)
-            send_battle_result(battle, creator_team, opponent_team)
+            send_battle_result(battle, creator_pokemons, opponent_pokemons)
             messages.success(self.request, "Battle ended! Check your e-mail for results.")
 
         else:
