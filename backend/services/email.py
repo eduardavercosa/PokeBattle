@@ -11,13 +11,13 @@ def send_battle_invite(battle, team_opponent_id):
         "create_team",
         args=[team_opponent_id],
     )
-    battle_invite_url = urljoin(settings.HOST, battle_invite_path)
+    battle_invite_url = settings.HOST + battle_invite_path
 
     battle_delete_path = reverse(
         "delete_battle",
         args=[battle.id],
     )
-    battle_delete_url = urljoin(settings.HOST, battle_delete_path)
+    battle_delete_url = settings.HOST + battle_delete_path
 
     send_templated_mail(
         template_name="battle_invite",
