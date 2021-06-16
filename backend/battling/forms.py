@@ -1,8 +1,7 @@
 from django import forms
 
 from battling.models import Battle, PokemonTeam, Team
-from pokemon.helpers import valid_team
-from pokemon.models import Pokemon
+from pokemon.helpers import save_pokemon, valid_team
 from users.models import User
 
 
@@ -25,24 +24,25 @@ class CreateTeamForm(forms.ModelForm):
             "pokemon_3",
         ]
 
-    pokemon_1 = forms.ModelChoiceField(
+    pokemon_1 = forms.IntegerField(
         label="Pokemon 1",
-        queryset=Pokemon.objects.all(),
         required=True,
     )
-    pokemon_2 = forms.ModelChoiceField(
+    pokemon_2 = forms.IntegerField(
         label="Pokemon 2",
-        queryset=Pokemon.objects.all(),
         required=True,
     )
-    pokemon_3 = forms.ModelChoiceField(
+    pokemon_3 = forms.IntegerField(
         label="Pokemon 3",
-        queryset=Pokemon.objects.all(),
         required=True,
     )
 
     def clean(self):
         cleaned_data = super().clean()
+
+        cleaned_data["pokemon_1"] = save_pokemon(str(cleaned_data["pokemon_1"]))
+        cleaned_data["pokemon_2"] = save_pokemon(str(cleaned_data["pokemon_2"]))
+        cleaned_data["pokemon_3"] = save_pokemon(str(cleaned_data["pokemon_3"]))
 
         is_pokemon_sum_valid = valid_team(
             [
