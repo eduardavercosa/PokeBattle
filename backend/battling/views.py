@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, Team
-from services.battles import get_battle_winner
+from services.battles import set_battle_winner
 from services.email import send_battle_invite, send_battle_result
 
 
@@ -62,7 +62,7 @@ class CreateTeam(UpdateView):
         opponent_pokemons = opponent.pokemons.all()
 
         if creator_pokemons and opponent_pokemons:
-            get_battle_winner(battle)
+            set_battle_winner(battle)
             send_battle_result(battle, creator_pokemons, opponent_pokemons)
             messages.success(self.request, "Battle ended! Check your e-mail for results.")
 
