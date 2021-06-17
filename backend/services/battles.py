@@ -32,7 +32,7 @@ def battle_round(creator_pokemon, opponent_pokemon):
     return opponent_won
 
 
-def get_battle_winner(battle):
+def set_battle_winner(battle):
     battle_score = {"creator": 0, "opponent": 0}
 
     # get the team related to the battle and the trainers
