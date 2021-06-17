@@ -20,7 +20,7 @@ def get_pokemon_from_api(poke_name):
     }
 
 
-def save_pokemon(poke_name):
+def get_or_create_pokemon(poke_name):
     pokemon = get_pokemon_from_api(poke_name)
 
     if Pokemon.objects.filter(poke_id=pokemon["poke_id"]).exists():
