@@ -27,14 +27,20 @@ class CreateTeamForm(forms.ModelForm):
     pokemon_1 = forms.IntegerField(
         label="Pokemon 1",
         required=True,
+        min_value=1,
+        max_value=898,
     )
     pokemon_2 = forms.IntegerField(
         label="Pokemon 2",
         required=True,
+        min_value=1,
+        max_value=898,
     )
     pokemon_3 = forms.IntegerField(
         label="Pokemon 3",
         required=True,
+        min_value=1,
+        max_value=898,
     )
 
     def clean(self):
