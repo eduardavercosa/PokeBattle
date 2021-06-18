@@ -6,15 +6,6 @@ from pokemon.constants import POKE_API_URL
 from pokemon.models import Pokemon
 
 
-def get_all_pokemon_from_api():
-    url = urljoin(POKE_API_URL, "?limit=802")
-    response = requests.get(url)
-    data = response.json()
-
-    for pokemon in data["results"]:
-        save_pokemon(pokemon["name"])
-
-
 def get_pokemon_from_api(poke_name):
     url = urljoin(POKE_API_URL, poke_name)
     response = requests.get(url)
@@ -29,16 +20,18 @@ def get_pokemon_from_api(poke_name):
     }
 
 
-def save_pokemon(poke_name):
-    data = get_pokemon_from_api(poke_name)
+def get_or_create_pokemon(poke_name):
+    pokemon = get_pokemon_from_api(poke_name)
 
+    if Pokemon.objects.filter(poke_id=pokemon["poke_id"]).exists():
+        return Pokemon.objects.get(poke_id=pokemon["poke_id"])
     return Pokemon.objects.create(
-        poke_id=data["poke_id"],
-        name=data["name"],
-        img_url=data["img_url"],
-        defense=data["defense"],
-        attack=data["attack"],
-        hp=data["hp"],
+        poke_id=pokemon["poke_id"],
+        name=pokemon["name"],
+        img_url=pokemon["img_url"],
+        defense=pokemon["defense"],
+        attack=pokemon["attack"],
+        hp=pokemon["hp"],
     )
 
 

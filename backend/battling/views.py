@@ -7,7 +7,8 @@ from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, Team
-from services.battles import get_battle_winner
+from services.battles import set_battle_winner
+from services.email import send_battle_invite, send_battle_result
 
 
 class Home(TemplateView):
@@ -27,7 +28,9 @@ class CreateBattle(CreateView):
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
 
-        Team.objects.create(battle=battle, trainer=battle.opponent)
+        team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
+
+        send_battle_invite(battle, team_opponent.id)
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
 
@@ -39,21 +42,34 @@ class CreateTeam(UpdateView):
     model = Team
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
-    success_url = reverse_lazy("home")
 
     def form_valid(self, form):
         battle = self.get_object().battle
-        battle_creator = battle.creator
+        form.save()
 
-        if self.request.user == battle_creator:
-            messages.success(self.request, "Your battle was created!")
+        creator = (
+            Team.objects.filter(battle=battle, trainer=battle.creator)
+            .prefetch_related("pokemons")
+            .get()
+        )
+        creator_pokemons = creator.pokemons.all()
+
+        opponent = (
+            Team.objects.filter(battle=battle, trainer=battle.opponent)
+            .prefetch_related("pokemons")
+            .get()
+        )
+        opponent_pokemons = opponent.pokemons.all()
+
+        if creator_pokemons and opponent_pokemons:
+            set_battle_winner(battle)
+            send_battle_result(battle, creator_pokemons, opponent_pokemons)
+            messages.success(self.request, "Battle ended! Check your e-mail for results.")
 
         else:
-            messages.success(self.request, "Battle ended! Check e-mail for results.")
+            messages.success(self.request, "You'll receive an email when the battle is over.")
 
-            get_battle_winner(battle)
-
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse_lazy("home"))
 
 
 class DeleteBattle(DeleteView):
@@ -99,10 +115,10 @@ class DetailBattle(DetailView):
         battle = self.get_object()
 
         creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
-        context["creator_team"] = creator[0].pokemons.all()
+        context["creator_team"] = creator.pokemons.all()
 
         opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
-        context["opponent_team"] = opponent[0].pokemons.all()
+        context["opponent_team"] = opponent.pokemons.all()
 
         context["settled"] = Battle.BattleStatus.SETTLED
         context["ongoing"] = Battle.BattleStatus.ONGOING
