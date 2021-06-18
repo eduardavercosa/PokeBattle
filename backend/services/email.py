@@ -11,13 +11,13 @@ def send_battle_invite(battle, team_opponent_id):
         "create_team",
         args=[team_opponent_id],
     )
-    battle_invite_url = urljoin(settings.HOST, battle_invite_path)
+    battle_invite_url = settings.HOST + battle_invite_path
 
     battle_delete_path = reverse(
-        "delete_team",
-        args=[team_opponent_id],
+        "delete_battle",
+        args=[battle.id],
     )
-    battle_delete_url = urljoin(settings.HOST, battle_delete_path)
+    battle_delete_url = settings.HOST + battle_delete_path
 
     send_templated_mail(
         template_name="battle_invite",
@@ -33,7 +33,7 @@ def send_battle_invite(battle, team_opponent_id):
 
 
 def send_battle_result(battle, creator_pokemon_list, opponent_pokemon_list):
-    battle_detail_path = reverse("battle_details", args=None)
+    battle_detail_path = reverse("battle_detail", args=[battle.id])
     battle_details_url = urljoin(settings.HOST, battle_detail_path)
     send_templated_mail(
         template_name="battle_result",
@@ -44,16 +44,8 @@ def send_battle_result(battle, creator_pokemon_list, opponent_pokemon_list):
             "battle_opponent": battle.opponent.email.split("@")[0],
             "battle_winner": battle.winner.email.split("@")[0],
             "battle_id": battle.id,
-            "creator_team": [
-                creator_pokemon_list[0]["name"],
-                creator_pokemon_list[1]["name"],
-                creator_pokemon_list[2]["name"],
-            ],
-            "opponent_team": [
-                opponent_pokemon_list[0]["name"],
-                opponent_pokemon_list[1]["name"],
-                opponent_pokemon_list[2]["name"],
-            ],
+            "creator_team": [pokemon.name for pokemon in creator_pokemon_list],
+            "opponent_team": [pokemon.name for pokemon in opponent_pokemon_list],
             "battle_details_url": battle_details_url,
         },
     )

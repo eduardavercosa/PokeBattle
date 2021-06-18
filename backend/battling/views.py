@@ -1,16 +1,14 @@
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, Team
-from services.email import send_battle_invite
-
-
-# from services.battles import run_battle_and_send_email
+from services.battles import set_battle_winner
+from services.email import send_battle_invite, send_battle_result
 
 
 class Home(TemplateView):
@@ -24,6 +22,8 @@ class CreateBattle(CreateView):
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
+        form.instance.status = Battle.BattleStatus.ONGOING
+
         battle = form.save()
 
         team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
@@ -34,32 +34,50 @@ class CreateBattle(CreateView):
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
 
+    def get_initial(self):
+        return {"creator_id": self.request.user.id}
+
 
 class CreateTeam(UpdateView):
     model = Team
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
-    success_url = reverse_lazy("home")
 
     def form_valid(self, form):
         battle = self.get_object().battle
-        battle_creator = battle.creator
+        form.save()
 
-        if self.request.user == battle_creator:
-            messages.success(self.request, "Your battle was created!")
+        creator = (
+            Team.objects.filter(battle=battle, trainer=battle.creator)
+            .prefetch_related("pokemons")
+            .get()
+        )
+        creator_pokemons = creator.pokemons.all()
+
+        opponent = (
+            Team.objects.filter(battle=battle, trainer=battle.opponent)
+            .prefetch_related("pokemons")
+            .get()
+        )
+        opponent_pokemons = opponent.pokemons.all()
+
+        if creator_pokemons and opponent_pokemons:
+            set_battle_winner(battle)
+            send_battle_result(battle, creator_pokemons, opponent_pokemons)
+            messages.success(self.request, "Battle ended! Check your e-mail for results.")
 
         else:
-            messages.success(self.request, "Battle ended! Check e-mail for results.")
+            messages.success(self.request, "You'll receive an email when the battle is over.")
 
-            # run_battle_and_send_email(battle)
-
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse_lazy("home"))
 
 
-class DeleteTeam(DeleteView):
-    template_name = "battling/delete_team.html"
+class DeleteBattle(DeleteView):
+    template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
-    queryset = Team.objects.all()
+
+    def get_queryset(self):
+        return Battle.objects.filter(Q(creator=self.request.user) | Q(opponent=self.request.user))
 
     def get_success_url(self):
         messages.success(self.request, "Battle refused!")
@@ -67,9 +85,42 @@ class DeleteTeam(DeleteView):
         return reverse_lazy("home")
 
 
-class DetailBattle(DetailView):
-    template_name = "battling/battle_details.html"
+class BattleList(ListView):  # pylint: disable=too-many-ancestors
+    template_name = "battling/battle_list.html"
     model = Battle
 
-    def get_battle(self):
-        return get_object_or_404(Battle, id=self.kwargs["pk"])
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["settled_created_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.SETTLED
+        ).filter(creator=self.request.user)
+        context["settled_invited_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.SETTLED
+        ).filter(opponent=self.request.user)
+        context["ongoing_created_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.ONGOING
+        ).filter(creator=self.request.user)
+        context["ongoing_invited_battles"] = Battle.objects.filter(
+            status=Battle.BattleStatus.ONGOING
+        ).filter(opponent=self.request.user)
+        return context
+
+
+class DetailBattle(DetailView):
+    template_name = "battling/battle_detail.html"
+    model = Battle
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        battle = self.get_object()
+
+        creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
+        context["creator_team"] = creator.pokemons.all()
+
+        opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
+        context["opponent_team"] = opponent.pokemons.all()
+
+        context["settled"] = Battle.BattleStatus.SETTLED
+        context["ongoing"] = Battle.BattleStatus.ONGOING
+
+        return context

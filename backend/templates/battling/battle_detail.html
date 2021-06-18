@@ -1,0 +1,82 @@
+{% extends "battling/base.html" %}
+{% load battling_tags %}
+
+{% block content %}
+<div class="teste">
+  <h1>Result</h1>
+
+  {% if battle.winner %}
+    <h3>{{battle.winner}} won!</h3>
+  {% endif %}
+
+  {% if creator_team and user == battle.creator or battle.status == settled %}
+    {{battle.creator}} team:
+    <table>
+      <tr>
+        <th>Pokemon</th>
+        <th>attack</th>
+        <th>defense</th>
+        <th>hp</th>
+      </tr>
+
+      {% for pokemon in creator_team %}
+        <tr>
+          <th> {{pokemon.name}}</th>
+          <th> {{pokemon.attack}}</th>
+          <th> {{pokemon.defense}}</th>
+          <th> {{pokemon.hp}}</th>
+        </tr>
+      {% endfor %}
+    {% elif user == battle.opponent %}
+      <tr>
+        {{battle.creator}} has challenged you.
+      </tr>
+    {% endif %}
+
+  </table>
+
+  {% if opponent_team and user == battle.opponent or battle.status == settled %}
+    {{battle.opponent}} team:
+
+    <table>
+      <tr>
+        <th>Pokemon</th>
+        <th>attack</th>
+        <th>defense</th>
+        <th>hp</th>
+      </tr>
+
+      {% for pokemon in opponent_team %}
+        <tr>
+          <th> {{pokemon.name}}</th>
+          <th> {{pokemon.attack}}</th>
+          <th> {{pokemon.defense}}</th>
+          <th> {{pokemon.hp}}</th>
+        </tr>
+      {% endfor %}
+    {% elif user == battle.creator and not opponent_team %}
+      <tr>
+        {{battle.opponent}} hasn't chosen yet.
+      </tr>
+    {% else %}
+      <tr>
+        Click "Edit" to choose your pokemons!
+      </tr>
+    {% endif %}
+
+  </table>
+  {% if battle.status == ongoing %}
+    <a class="button_next" href="{% url 'delete_battle' pk=battle.id %}" role="button">
+      <p class="text_button">Delete</p>
+    </a>
+
+    <a class="button_next" href="{% url 'create_team' battle|get_team_id:user %}" role="button">
+      <p class="text_button">Edit</p>
+    </a>
+  {% endif %}
+
+  <a class="button_next" role="button" onClick="javascript:history.go(-1)">
+    <p class="text_button">Back</p>
+  </a>
+</div>
+{% endblock %}

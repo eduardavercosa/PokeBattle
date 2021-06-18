@@ -1,22 +1,11 @@
-from urllib.parse import urljoin
-
 import requests
 
 from pokemon.constants import POKE_API_URL
 from pokemon.models import Pokemon
 
 
-def get_all_pokemon_from_api():
-    url = urljoin(POKE_API_URL, "?limit=802")
-    response = requests.get(url)
-    data = response.json()
-
-    for pokemon in data["results"]:
-        save_pokemon(pokemon["name"])
-
-
 def get_pokemon_from_api(poke_name):
-    url = urljoin(POKE_API_URL, poke_name)
+    url = POKE_API_URL + poke_name
     response = requests.get(url)
     data = response.json()
     return {
@@ -29,24 +18,31 @@ def get_pokemon_from_api(poke_name):
     }
 
 
-def save_pokemon(poke_name):
-    data = get_pokemon_from_api(poke_name)
-
+def create_pokemon(pokemon_data):
     return Pokemon.objects.create(
-        poke_id=data["poke_id"],
-        name=data["name"],
-        img_url=data["img_url"],
-        defense=data["defense"],
-        attack=data["attack"],
-        hp=data["hp"],
+        poke_id=pokemon_data["poke_id"],
+        name=pokemon_data["name"],
+        img_url=pokemon_data["img_url"],
+        defense=pokemon_data["defense"],
+        attack=pokemon_data["attack"],
+        hp=pokemon_data["hp"],
     )
 
 
-def valid_team(pokemon_names):
+def is_team_valid(pokemon_data):
     points = 0
-    for pokemon_name in pokemon_names:
-        pokemon = Pokemon.objects.filter(name=pokemon_name).first()
-
-        points += pokemon.attack + pokemon.defense + pokemon.hp
+    for pokemon in pokemon_data:
+        points += pokemon["attack"] + pokemon["defense"] + pokemon["hp"]
 
     return points <= 600
+
+
+def get_or_create_pokemon(pokemon_data):
+    pokemons = []
+    for pokemon in pokemon_data:
+        if Pokemon.objects.filter(poke_id=pokemon["poke_id"]).exists():
+            pokemons.append(Pokemon.objects.get(poke_id=pokemon["poke_id"]))
+        else:
+            new_pokemon = create_pokemon(pokemon)
+            pokemons.append(new_pokemon)
+    return pokemons
