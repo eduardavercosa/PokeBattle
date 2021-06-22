@@ -14,6 +14,7 @@
     <table>
       <tr>
         <th>Pokemon</th>
+        <th>name</th>
         <th>attack</th>
         <th>defense</th>
         <th>hp</th>
@@ -21,6 +22,9 @@
 
       {% for pokemon in creator_team %}
         <tr>
+          <th>
+            <img src="{{pokemon.img_url}}" height="90px"/>
+          </th>
           <th> {{pokemon.name}}</th>
           <th> {{pokemon.attack}}</th>
           <th> {{pokemon.defense}}</th>
@@ -48,6 +52,7 @@
 
       {% for pokemon in opponent_team %}
         <tr>
+          <th> {{pokemon.img_url}}</th>
           <th> {{pokemon.name}}</th>
           <th> {{pokemon.attack}}</th>
           <th> {{pokemon.defense}}</th>
