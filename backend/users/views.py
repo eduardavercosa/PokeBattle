@@ -1,9 +1,20 @@
 from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render  # noqa
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
-from .forms import SignUpForm
+from .forms import LoginForm, SignUpForm
+
+
+class Login(LoginView):
+    template_name = "auth/login.html"
+    fields = "__all__"
+    redirect_authenticated_user = True
+    form_class = LoginForm
+
+    def get_success_url(self):
+        return reverse_lazy("home")
 
 
 class Signup(FormView):
