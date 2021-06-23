@@ -9,7 +9,6 @@ from .forms import LoginForm, SignUpForm
 
 class Login(LoginView):
     template_name = "auth/login.html"
-    fields = "__all__"
     redirect_authenticated_user = True
     form_class = LoginForm
 
