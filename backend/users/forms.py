@@ -4,9 +4,15 @@ from users.models import User
 
 
 class SignUpForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(SignUpForm, self).__init__(*args, **kwargs)
+
+        for fieldname in ["email", "password1", "password2"]:
+            self.fields[fieldname].help_text = None
+
     class Meta:
         model = User
-        fields = ["email"]
+        fields = ["email", "password1", "password2"]
 
 
 class LoginForm(AuthenticationForm):
