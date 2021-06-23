@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -15,7 +16,7 @@ class Home(TemplateView):
     template_name = "battling/home.html"
 
 
-class CreateBattle(CreateView):
+class CreateBattle(LoginRequiredMixin, CreateView):
     model = Battle
     form_class = CreateBattleForm
     template_name = "battling/create_battle.html"
@@ -38,7 +39,7 @@ class CreateBattle(CreateView):
         return {"creator_id": self.request.user.id}
 
 
-class CreateTeam(UpdateView):
+class CreateTeam(LoginRequiredMixin, UpdateView):
     model = Team
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
@@ -72,7 +73,7 @@ class CreateTeam(UpdateView):
         return HttpResponseRedirect(reverse_lazy("home"))
 
 
-class DeleteBattle(DeleteView):
+class DeleteBattle(LoginRequiredMixin, DeleteView):
     template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
 
@@ -85,7 +86,7 @@ class DeleteBattle(DeleteView):
         return reverse_lazy("home")
 
 
-class BattleList(ListView):  # pylint: disable=too-many-ancestors
+class BattleList(LoginRequiredMixin, ListView):  # pylint: disable=too-many-ancestors
     template_name = "battling/battle_list.html"
     model = Battle
 
@@ -106,7 +107,7 @@ class BattleList(ListView):  # pylint: disable=too-many-ancestors
         return context
 
 
-class DetailBattle(DetailView):
+class DetailBattle(LoginRequiredMixin, DetailView):
     template_name = "battling/battle_detail.html"
     model = Battle
 
