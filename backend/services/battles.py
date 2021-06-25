@@ -1,4 +1,4 @@
-from battling.models import Battle, Team
+from battling.models import Battle, PokemonTeam, Team
 
 
 def battle_round(creator_pokemon, opponent_pokemon):
@@ -39,9 +39,13 @@ def set_battle_winner(battle):
     creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
     opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
 
-    # get the pokemons names from each team
-    creator_team = creator.pokemons.all()
-    opponent_team = opponent.pokemons.all()
+    # get pokemon in the right order
+    creator_pokemon_list = PokemonTeam.objects.filter(team=creator)
+    opponent_pokemon_list = PokemonTeam.objects.filter(team=opponent)
+
+    # get the pokemons data from each team
+    creator_team = [pokemon.pokemon for pokemon in creator_pokemon_list]
+    opponent_team = [pokemon.pokemon for pokemon in opponent_pokemon_list]
 
     for creator_pokemon, opponent_pokemon in zip(creator_team, opponent_team):
         score = battle_round(creator_pokemon, opponent_pokemon)
