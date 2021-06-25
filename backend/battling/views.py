@@ -12,11 +12,11 @@ from services.battles import set_battle_winner
 from services.email import send_battle_invite, send_battle_result
 
 
-class Home(TemplateView):
+class HomeView(TemplateView):
     template_name = "battling/home.html"
 
 
-class CreateBattle(LoginRequiredMixin, CreateView):
+class CreateBattleView(LoginRequiredMixin, CreateView):
     model = Battle
     form_class = CreateBattleForm
     template_name = "battling/create_battle.html"
@@ -39,7 +39,7 @@ class CreateBattle(LoginRequiredMixin, CreateView):
         return {"creator_id": self.request.user.id}
 
 
-class CreateTeam(LoginRequiredMixin, UpdateView):
+class CreateTeamView(LoginRequiredMixin, UpdateView):
     model = Team
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
@@ -73,7 +73,7 @@ class CreateTeam(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse_lazy("home"))
 
 
-class DeleteBattle(LoginRequiredMixin, DeleteView):
+class DeleteBattleView(LoginRequiredMixin, DeleteView):
     template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
 
@@ -86,7 +86,7 @@ class DeleteBattle(LoginRequiredMixin, DeleteView):
         return reverse_lazy("home")
 
 
-class BattleList(LoginRequiredMixin, ListView):  # pylint: disable=too-many-ancestors
+class BattleListView(LoginRequiredMixin, ListView):  # pylint: disable=too-many-ancestors
     template_name = "battling/battle_list.html"
     model = Battle
 
@@ -107,7 +107,7 @@ class BattleList(LoginRequiredMixin, ListView):  # pylint: disable=too-many-ance
         return context
 
 
-class DetailBattle(LoginRequiredMixin, DetailView):
+class DetailBattleView(LoginRequiredMixin, DetailView):
     template_name = "battling/battle_detail.html"
     model = Battle
 
