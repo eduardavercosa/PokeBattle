@@ -1,5 +1,5 @@
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.shortcuts import render  # noqa
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
@@ -7,7 +7,7 @@ from django.views.generic.edit import FormView
 from .forms import LoginForm, SignUpForm
 
 
-class Login(LoginView):
+class LoginView(DjangoLoginView):
     template_name = "auth/login.html"
     redirect_authenticated_user = True
     form_class = LoginForm
@@ -16,7 +16,7 @@ class Login(LoginView):
         return reverse_lazy("home")
 
 
-class Signup(FormView):
+class SignupView(FormView):
     template_name = "auth/signup.html"
     form_class = SignUpForm
     redirect_authenticated_user = True
@@ -26,4 +26,4 @@ class Signup(FormView):
         user = form.save()
         if user is not None:
             login(self.request, user)
-        return super(Signup, self).form_valid(form)
+        return super(SignupView, self).form_valid(form)
