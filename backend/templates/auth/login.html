@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth_container">
+  <form method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" value="Login">
+  </form>
+
+  <p>Don't have an account? <a href="{% url 'signup' %}">Signup</a></p>
+
+  <a class="button_next" onClick="javascript:history.go(-1)">Back</a>
+</div>
+{% endblock %}
+
