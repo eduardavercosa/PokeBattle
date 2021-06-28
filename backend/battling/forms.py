@@ -4,8 +4,8 @@ from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import (
     get_or_create_pokemon,
     get_pokemon_from_api,
+    has_repeated_positions,
     is_team_valid,
-    repeated_positions,
 )
 from users.models import User
 
@@ -35,9 +35,15 @@ class CreateTeamForm(forms.ModelForm):
             "pokemon_3_position",
         ]
 
-    pokemon_1_position = forms.ChoiceField(choices=POSITION_CHOICES, label="Pokemon position")
-    pokemon_2_position = forms.ChoiceField(choices=POSITION_CHOICES, label="Pokemon position")
-    pokemon_3_position = forms.ChoiceField(choices=POSITION_CHOICES, label="Pokemon position")
+    pokemon_1_position = forms.TypedChoiceField(
+        choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
+    )
+    pokemon_2_position = forms.TypedChoiceField(
+        choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
+    )
+    pokemon_3_position = forms.TypedChoiceField(
+        choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
+    )
 
     pokemon_1 = forms.IntegerField(
         label="Pokemon 1",
@@ -66,7 +72,7 @@ class CreateTeamForm(forms.ModelForm):
             (cleaned_data["pokemon_2_position"]),
             (cleaned_data["pokemon_3_position"]),
         ]
-        is_any_position_repeated = repeated_positions(pokemon_position)
+        is_any_position_repeated = has_repeated_positions(pokemon_position)
 
         if is_any_position_repeated:
             raise forms.ValidationError("Each Pokemon must have a unique position.")

@@ -48,9 +48,7 @@ def get_or_create_pokemon(pokemon_data):
     return pokemons
 
 
-def repeated_positions(pokemon_position):
+def has_repeated_positions(pokemon_position):
     for i in pokemon_position:
         repeated_position = pokemon_position.count(i)
-        if repeated_position > 1:
-            return True
-        return False
+        return repeated_position > 1
