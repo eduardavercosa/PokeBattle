@@ -115,17 +115,17 @@ class DetailBattleView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         battle = self.get_object()
 
-        creator_pokemon_list = PokemonTeam.objects.filter(
+        creator_pokemon_qs = PokemonTeam.objects.filter(
             team__battle=battle, team__trainer=battle.creator
         ).select_related("pokemon")
-        creator_pokemon_list.order_by("order")
-        context["creator_team"] = [pokemon.pokemon for pokemon in creator_pokemon_list]
+        creator_pokemon_qs = creator_pokemon_qs.order_by("order")
+        context["creator_team"] = [pokemon.pokemon for pokemon in creator_pokemon_qs]
 
-        opponent_pokemon_list = PokemonTeam.objects.filter(
+        opponent_pokemon_qs = PokemonTeam.objects.filter(
             team__battle=battle, team__trainer=battle.opponent
         ).select_related("pokemon")
-        opponent_pokemon_list.order_by("order")
-        context["opponent_team"] = [pokemon.pokemon for pokemon in opponent_pokemon_list]
+        opponent_pokemon_qs = opponent_pokemon_qs.order_by("order")
+        context["opponent_team"] = [pokemon.pokemon for pokemon in opponent_pokemon_qs]
 
         context["settled"] = Battle.BattleStatus.SETTLED
         context["ongoing"] = Battle.BattleStatus.ONGOING

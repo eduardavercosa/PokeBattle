@@ -67,12 +67,12 @@ class CreateTeamForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        pokemon_position = [
+        pokemon_position_list = [
             (cleaned_data["pokemon_1_position"]),
             (cleaned_data["pokemon_2_position"]),
             (cleaned_data["pokemon_3_position"]),
         ]
-        is_any_position_repeated = has_repeated_positions(pokemon_position)
+        is_any_position_repeated = has_repeated_positions(pokemon_position_list)
 
         if is_any_position_repeated:
             raise forms.ValidationError("Each Pokemon must have a unique position.")
