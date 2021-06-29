@@ -52,15 +52,15 @@
       </tr>
 
       {% for pokemon in opponent_team %}
-      <tr>
-        <th>
-          <img src="{{pokemon.img_url}}" height="90px"/>
-        </th>
-        <th> {{pokemon.name}}</th>
-        <th> {{pokemon.attack}}</th>
-        <th> {{pokemon.defense}}</th>
-        <th> {{pokemon.hp}}</th>
-      </tr>
+        <tr>
+          <th>
+            <img src="{{pokemon.img_url}}" height="90px"/>
+          </th>
+          <th> {{pokemon.name}}</th>
+          <th> {{pokemon.attack}}</th>
+          <th> {{pokemon.defense}}</th>
+          <th> {{pokemon.hp}}</th>
+        </tr>
       {% endfor %}
     {% elif user == battle.creator and not opponent_team %}
       <tr>

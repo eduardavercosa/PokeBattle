@@ -32,7 +32,7 @@ def send_battle_invite(battle, team_opponent_id):
     )
 
 
-def send_battle_result(battle, creator_pokemon_list, opponent_pokemon_list):
+def send_battle_result(battle, creator_pokemon_qs, opponent_pokemon_qs):
     battle_detail_path = reverse("battle_detail", args=[battle.id])
     battle_details_url = urljoin(settings.HOST, battle_detail_path)
     send_templated_mail(
@@ -44,8 +44,8 @@ def send_battle_result(battle, creator_pokemon_list, opponent_pokemon_list):
             "battle_opponent": battle.opponent.email.split("@")[0],
             "battle_winner": battle.winner.email.split("@")[0],
             "battle_id": battle.id,
-            "creator_team": [pokemon.name for pokemon in creator_pokemon_list],
-            "opponent_team": [pokemon.name for pokemon in opponent_pokemon_list],
+            "creator_team": [pokemon.name for pokemon in creator_pokemon_qs],
+            "opponent_team": [pokemon.name for pokemon in opponent_pokemon_qs],
             "battle_details_url": battle_details_url,
         },
     )

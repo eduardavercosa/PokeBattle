@@ -7,7 +7,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
-from battling.models import Battle, Team
+from battling.models import Battle, PokemonTeam, Team
 from services.battles import set_battle_winner
 from services.email import send_battle_invite, send_battle_result
 
@@ -115,11 +115,17 @@ class DetailBattleView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         battle = self.get_object()
 
-        creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
-        context["creator_team"] = creator.pokemons.all()
+        creator_pokemon_qs = PokemonTeam.objects.filter(
+            team__battle=battle, team__trainer=battle.creator
+        ).select_related("pokemon")
+        creator_pokemon_qs = creator_pokemon_qs.order_by("order")
+        context["creator_team"] = [pokemon.pokemon for pokemon in creator_pokemon_qs]
 
-        opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
-        context["opponent_team"] = opponent.pokemons.all()
+        opponent_pokemon_qs = PokemonTeam.objects.filter(
+            team__battle=battle, team__trainer=battle.opponent
+        ).select_related("pokemon")
+        opponent_pokemon_qs = opponent_pokemon_qs.order_by("order")
+        context["opponent_team"] = [pokemon.pokemon for pokemon in opponent_pokemon_qs]
 
         context["settled"] = Battle.BattleStatus.SETTLED
         context["ongoing"] = Battle.BattleStatus.ONGOING

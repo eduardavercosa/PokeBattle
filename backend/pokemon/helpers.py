@@ -46,3 +46,7 @@ def get_or_create_pokemon(pokemon_data):
             new_pokemon = create_pokemon(pokemon)
             pokemons.append(new_pokemon)
     return pokemons
+
+
+def has_repeated_positions(pokemon_position_list):
+    return len(pokemon_position_list) != len(set(pokemon_position_list))

@@ -1,7 +1,12 @@
 from django import forms
 
 from battling.models import Battle, PokemonTeam, Team
-from pokemon.helpers import get_or_create_pokemon, get_pokemon_from_api, is_team_valid
+from pokemon.helpers import (
+    get_or_create_pokemon,
+    get_pokemon_from_api,
+    has_repeated_positions,
+    is_team_valid,
+)
 from users.models import User
 
 
@@ -15,14 +20,30 @@ class CreateBattleForm(forms.ModelForm):
         self.fields["opponent"].queryset = User.objects.exclude(id=self.initial["creator_id"])
 
 
+POSITION_CHOICES = [(1, 1), (2, 2), (3, 3)]
+
+
 class CreateTeamForm(forms.ModelForm):
     class Meta:
         model = Team
         fields = [
             "pokemon_1",
+            "pokemon_1_position",
             "pokemon_2",
+            "pokemon_2_position",
             "pokemon_3",
+            "pokemon_3_position",
         ]
+
+    pokemon_1_position = forms.TypedChoiceField(
+        choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
+    )
+    pokemon_2_position = forms.TypedChoiceField(
+        choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
+    )
+    pokemon_3_position = forms.TypedChoiceField(
+        choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
+    )
 
     pokemon_1 = forms.IntegerField(
         label="Pokemon 1",
@@ -46,6 +67,16 @@ class CreateTeamForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
+        pokemon_position_list = [
+            (cleaned_data["pokemon_1_position"]),
+            (cleaned_data["pokemon_2_position"]),
+            (cleaned_data["pokemon_3_position"]),
+        ]
+        is_any_position_repeated = has_repeated_positions(pokemon_position_list)
+
+        if is_any_position_repeated:
+            raise forms.ValidationError("Each Pokemon must have a unique position.")
+
         pokemon_data = [
             get_pokemon_from_api(str(cleaned_data["pokemon_1"])),
             get_pokemon_from_api(str(cleaned_data["pokemon_2"])),
@@ -67,8 +98,14 @@ class CreateTeamForm(forms.ModelForm):
         data = self.cleaned_data
         self.instance.pokemons.clear()
 
-        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_1"], order=1)
-        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_2"], order=2)
-        PokemonTeam.objects.create(team=self.instance, pokemon=data["pokemon_3"], order=3)
+        PokemonTeam.objects.create(
+            team=self.instance, pokemon=data["pokemon_1"], order=data["pokemon_1_position"]
+        )
+        PokemonTeam.objects.create(
+            team=self.instance, pokemon=data["pokemon_2"], order=data["pokemon_2_position"]
+        )
+        PokemonTeam.objects.create(
+            team=self.instance, pokemon=data["pokemon_3"], order=data["pokemon_3_position"]
+        )
 
         return self.instance
