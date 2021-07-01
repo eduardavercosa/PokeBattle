@@ -1,5 +1,3 @@
-from urllib.parse import urljoin
-
 from django.conf import settings
 from django.urls import reverse
 
@@ -34,7 +32,7 @@ def send_battle_invite(battle, team_opponent_id):
 
 def send_battle_result(battle, creator_pokemon_qs, opponent_pokemon_qs):
     battle_detail_path = reverse("battle_detail", args=[battle.id])
-    battle_details_url = urljoin(settings.HOST, battle_detail_path)
+    battle_details_url = settings.HOST + battle_detail_path
     send_templated_mail(
         template_name="battle_result",
         from_email="eduardavercosa@vinta.com.br",

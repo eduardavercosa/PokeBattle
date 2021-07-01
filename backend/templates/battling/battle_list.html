@@ -27,50 +27,42 @@
     <h1>Ongoing Battles</h1>
 
     <h3>Battles I created!</h3>
-    {% if ongoing_created_battles.all %}
-      {% for instance in ongoing_created_battles %}
-        <li>
-          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-        </li>
-      {% endfor %}
-    {% else %}
+    {% for instance in ongoing_created_battles.all %}
+      <li>
+        <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+      </li>
+      {% empty %}
       <p>There are no battles yet!</p>
-    {% endif %}
+    {% endfor %}
 
     <h3>Battles I was invited!</h3>
-    {% if ongoing_invited_battles.all %}
-      {% for instance in ongoing_invited_battles %}
-        <li>
-          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-        </li>
-      {% endfor %}
-    {% else %}
+    {% for instance in ongoing_invited_battles.all %}
+      <li>
+        <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+      </li>
+      {% empty %}
       <p>There are no battles yet!</p>
-    {% endif %}
+    {% endfor %}
 
     <h1>Settled Battles</h1>
 
     <h3>Battles I created!</h3>
-    {% if settled_created_battles.all %}
-      {% for instance in settled_created_battles %}
-        <li>
-          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-        </li>
-      {% endfor %}
-    {% else %}
+    {% for instance in settled_created_battles.all %}
+      <li>
+        <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+      </li>
+      {% empty %}
       <p>There are no battles yet!</p>
-    {% endif %}
+    {% endfor %}
 
     <h3>Battles I was invited!</h3>
-    {% if settled_invited_battles.all %}
-      {% for instance in settled_invited_battles %}
-        <li>
-          <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
-        </li>
-      {% endfor %}
-    {% else %}
+    {% for instance in settled_invited_battles.all %}
+      <li>
+        <a href="{% url 'battle_detail' pk=instance.id %}?">Battle {{ instance.id }}</a>
+      </li>
+      {% empty %}
       <p>There are no battles yet!</p>
-    {% endif %}
+    {% endfor %}
   </div>
 
 </body>

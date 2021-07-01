@@ -109,11 +109,13 @@ class BattleListView(LoginRequiredMixin, ListView):  # pylint: disable=too-many-
 
 class DetailBattleView(LoginRequiredMixin, DetailView):
     template_name = "battling/battle_detail.html"
-    model = Battle
+
+    def get_queryset(self):
+        return Battle.objects.select_related("winner", "creator", "opponent")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        battle = self.get_object()
+        battle = context["object"]
 
         creator_pokemon_qs = PokemonTeam.objects.filter(
             team__battle=battle, team__trainer=battle.creator
