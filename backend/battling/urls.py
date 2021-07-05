@@ -1,3 +1,4 @@
+from django.conf.urls import include
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 
@@ -22,4 +23,5 @@ urlpatterns = [
     path("team/<int:pk>/edit/", CreateTeamView.as_view(), name="create_team"),
     path("battle/<int:pk>/delete/", DeleteBattleView.as_view(), name="delete_battle"),
     path("battle/<int:pk>/detail/", DetailBattleView.as_view(), name="battle_detail"),
+    path("oauth/", include("social_django.urls"), name="social"),
 ]
