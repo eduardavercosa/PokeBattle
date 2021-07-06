@@ -18,5 +18,4 @@ djangorestframework
 requests
 django-templated-email
 social-auth-app-django
-debug-toolbar
 social-django
