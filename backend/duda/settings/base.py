@@ -107,6 +107,8 @@ LOGIN_URL = 'login'
 
 STATICFILES_DIRS = (base_dir_join("../frontend"),)
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Webpack
 WEBPACK_LOADER = {
     "DEFAULT": {
