@@ -27,7 +27,7 @@ CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 
 # Email
-INSTALLED_APPS += ("naomi", "debug_toolbar",)
+INSTALLED_APPS += ("naomi")
 EMAIL_BACKEND = "naomi.mail.backends.naomi.NaomiBackend"
 EMAIL_FILE_PATH = base_dir_join("tmp_email")
 
@@ -47,6 +47,3 @@ LOGGING = {
 }
 
 JS_REVERSE_JS_MINIFY = False
-
-MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware",] + MIDDLEWARE
-INTERNAL_IPS = ["127.0.0.1",]
