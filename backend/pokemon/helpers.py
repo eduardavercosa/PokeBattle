@@ -4,6 +4,16 @@ from pokemon.constants import POKE_API_URL
 from pokemon.models import Pokemon
 
 
+def get_all_pokemon_from_api():
+    url = POKE_API_URL + "?limit=802"
+    response = requests.get(url)
+    data = response.json()
+    pokemon_list = []
+    for pokemon in data["results"]:
+        pokemon_list.append(pokemon)
+    return pokemon_list
+
+
 def get_pokemon_from_api(poke_name):
     url = POKE_API_URL + poke_name
     response = requests.get(url)
@@ -27,6 +37,12 @@ def create_pokemon(pokemon_data):
         attack=pokemon_data["attack"],
         hp=pokemon_data["hp"],
     )
+
+
+def pokemon_in_api(poke_name):
+    url = POKE_API_URL + poke_name
+    response = requests.head(url)
+    return bool(response)
 
 
 def is_team_valid(pokemon_data):
