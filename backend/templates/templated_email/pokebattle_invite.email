@@ -1,0 +1,9 @@
+{% block subject %}Join PokeBattle!{% endblock %}
+{% block html %}
+  <h3>Hello, <b>{{battle_opponent}}</b>.</h3>
+
+  <h3><b>{{battle_creator}}</b> has invited you to join Pokebattle!</h3>
+
+<a href="{{pokebattle_invite_url}}">Click here to create an account</a>
+
+{% endblock %}

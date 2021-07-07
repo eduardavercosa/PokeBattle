@@ -47,3 +47,19 @@ def send_battle_result(battle, creator_pokemon_qs, opponent_pokemon_qs):
             "battle_details_url": battle_details_url,
         },
     )
+
+
+def send_user_invite(creator, opponent):
+    pokebattle_invite_path = reverse("signup")
+    pokebattle_invite_url = settings.HOST + pokebattle_invite_path
+
+    send_templated_mail(
+        template_name="pokebattle_invite",
+        from_email="eduardavercosa@vinta.com.br",
+        recipient_list=[opponent],
+        context={
+            "battle_creator": creator.split("@")[0],
+            "battle_opponent": opponent.split("@")[0],
+            "pokebattle_invite_url": pokebattle_invite_url,
+        },
+    )
