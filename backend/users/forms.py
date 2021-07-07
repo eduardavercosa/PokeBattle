@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
+from users.helper import is_email_valid
 from users.models import User
 
 
@@ -25,5 +26,12 @@ class InviteUserForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+        opponent = cleaned_data["email"]
+
+        if not is_email_valid(opponent):
+            raise forms.ValidationError("Please, type a valid email.")
+
+        if User.objects.filter(email=opponent).exists():
+            raise forms.ValidationError("The email you entered is already registered.")
 
         return cleaned_data
