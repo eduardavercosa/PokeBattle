@@ -6,6 +6,7 @@ from pokemon.helpers import (
     get_pokemon_from_api,
     has_repeated_positions,
     is_team_valid,
+    pokemon_in_api,
 )
 from users.models import User
 
@@ -45,27 +46,31 @@ class CreateTeamForm(forms.ModelForm):
         choices=POSITION_CHOICES, coerce=int, label="Pokemon position"
     )
 
-    pokemon_1 = forms.IntegerField(
+    pokemon_1 = forms.CharField(
         label="Pokemon 1",
         required=True,
-        min_value=1,
-        max_value=898,
     )
-    pokemon_2 = forms.IntegerField(
+    pokemon_2 = forms.CharField(
         label="Pokemon 2",
         required=True,
-        min_value=1,
-        max_value=898,
     )
-    pokemon_3 = forms.IntegerField(
+    pokemon_3 = forms.CharField(
         label="Pokemon 3",
         required=True,
-        min_value=1,
-        max_value=898,
     )
 
     def clean(self):
         cleaned_data = super().clean()
+
+        pokemon_names = [
+            cleaned_data["pokemon_1"],
+            cleaned_data["pokemon_2"],
+            cleaned_data["pokemon_3"],
+        ]
+        for pokemon in pokemon_names:
+            pokemon_exists_in_api = pokemon_in_api(pokemon)
+            if not pokemon_exists_in_api:
+                raise forms.ValidationError("ERROR: Choose only existing Pokemon.")
 
         pokemon_position_list = [
             (cleaned_data["pokemon_1_position"]),

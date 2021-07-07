@@ -8,6 +8,7 @@ from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, PokemonTeam, Team
+from pokemon.helpers import get_all_pokemon_from_api
 from services.battles import set_battle_winner
 from services.email import send_battle_invite, send_battle_result
 
@@ -71,6 +72,12 @@ class CreateTeamView(LoginRequiredMixin, UpdateView):
             messages.success(self.request, "You'll receive an email when the battle is over.")
 
         return HttpResponseRedirect(reverse_lazy("home"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pokemons = get_all_pokemon_from_api()
+        context["pokemons"] = pokemons
+        return context
 
 
 class DeleteBattleView(LoginRequiredMixin, DeleteView):
