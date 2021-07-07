@@ -10,7 +10,7 @@ from battling.views import (
     DetailBattleView,
     HomeView,
 )
-from users.views import LoginView, SignupView
+from users.views import InviteUserView, LoginView, SignupView
 
 
 urlpatterns = [
@@ -18,6 +18,7 @@ urlpatterns = [
     path("login/", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(next_page="login"), name="logout"),
     path("signup/", SignupView.as_view(), name="signup"),
+    path("invite/", InviteUserView.as_view(), name="invite"),
     path("battle/new/", CreateBattleView.as_view(), name="create_battle"),
     path("battle/list/", BattleListView.as_view(), name="battle_list"),
     path("team/<int:pk>/edit/", CreateTeamView.as_view(), name="create_team"),

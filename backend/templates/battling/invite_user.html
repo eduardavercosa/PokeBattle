@@ -2,18 +2,13 @@
 
 {% block content %}
 <div class="teste">
-  <p class="title_battle">New battle</p>
-  <a href="{% url 'invite' %}">
-    <div>Invite user</div>
-  </a>
+  <p class="title_battle">Invite User</p>
   <form method="POST" class="battle-form">{% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="button_next">Next</button>
+    <button type="submit">Submit</button>
   </form>
-
   <a class="button_next" role="button" onClick="javascript:history.go(-1)">
     <p class="text_button">Back</p>
   </a>
-
 </div>
 {% endblock %}
