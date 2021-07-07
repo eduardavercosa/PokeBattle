@@ -4,9 +4,7 @@
 <div class="teste">
   <p class="title_battle">Choose your pokemons!</p>
   <div>
-    {% if message %}
-      <p class="error">{{message}}</p>
-    {% endif %}
+    {{ form.non_field_errors }}
   </div>
   <form method="POST" class="battle-form">{% csrf_token %}
     <p>
