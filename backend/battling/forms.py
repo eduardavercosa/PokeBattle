@@ -62,7 +62,7 @@ class CreateBattleForm(forms.ModelForm):
         if cleaned_data["opponent"] == cleaned_data["creator"]:
             raise forms.ValidationError("ERROR: You can't challenge yourself.")
 
-    def save(self):
+    def save(self, commit=True):
         instance = super().save()
         battle = self.instance
 
