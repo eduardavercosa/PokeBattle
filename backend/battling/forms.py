@@ -16,7 +16,7 @@ from users.helper import is_email_valid
 from users.models import User
 
 
-is_guest = False
+# is_guest = False
 
 
 class CreateBattleForm(forms.ModelForm):
@@ -33,6 +33,7 @@ class CreateBattleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CreateBattleForm, self).__init__(*args, **kwargs)
+        self.is_guest = False
         self.fields["creator"].widget = forms.HiddenInput()
 
     def clean_opponent(self):
@@ -40,8 +41,7 @@ class CreateBattleForm(forms.ModelForm):
         try:
             opponent = User.objects.get(email=opponent_email)
         except User.DoesNotExist:
-            global is_guest
-            is_guest = True
+            self.is_guest = True
             opponent = User.objects.create(email=opponent_email)
             random_password = get_random_string(length=64)
             opponent.set_password(random_password)
@@ -65,11 +65,10 @@ class CreateBattleForm(forms.ModelForm):
     def save(self):
         instance = super().save()
         battle = self.instance
-        global is_guest
 
         opponent_team_id = Team.objects.create(battle=battle, trainer=battle.opponent)
 
-        if is_guest is False:
+        if self.is_guest is False:
             send_battle_invite(battle, opponent_team_id.id)
 
         else:
