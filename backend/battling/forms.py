@@ -51,7 +51,12 @@ class CreateBattleForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        if not is_email_valid("opponent"):
+        try:
+            opponent = str(cleaned_data["opponent"])
+        except Exception:
+            raise forms.ValidationError("ERROR: Please, type a valid email.")
+
+        if not is_email_valid(opponent):
             raise forms.ValidationError("ERROR: Please, type a valid email.")
 
         if cleaned_data["opponent"] == cleaned_data["creator"]:
