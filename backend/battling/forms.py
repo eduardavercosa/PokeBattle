@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.tokens import default_token_generator
 from django.utils.crypto import get_random_string
 
 from battling.models import Battle, PokemonTeam, Team
@@ -14,9 +13,6 @@ from pokemon.helpers import (
 from services.email import send_battle_invite
 from users.helper import is_email_valid
 from users.models import User
-
-
-# is_guest = False
 
 
 class CreateBattleForm(forms.ModelForm):
@@ -68,9 +64,8 @@ class CreateBattleForm(forms.ModelForm):
 
         opponent_team_id = Team.objects.create(battle=battle, trainer=battle.opponent)
 
-        if self.is_guest is False:
+        if not self.is_guest:
             send_battle_invite(battle, opponent_team_id.id)
-
         else:
             invite_form = PasswordResetForm(data={"email": battle.opponent.email})
             invite_form.is_valid()
@@ -78,8 +73,6 @@ class CreateBattleForm(forms.ModelForm):
                 self,
                 subject_template_name="registration/password_reset_subject.txt",
                 email_template_name="registration/password_reset_email.html",
-                use_https=False,
-                token_generator=default_token_generator,
                 from_email="eduardavercosa@vinta.com.br",
                 request=None,
                 html_email_template_name=None,
