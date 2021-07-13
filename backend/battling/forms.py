@@ -33,28 +33,26 @@ class CreateBattleForm(forms.ModelForm):
         self.fields["creator"].widget = forms.HiddenInput()
 
     def clean_opponent(self):
-        opponent_email = self.cleaned_data["opponent"]
-        try:
-            opponent = User.objects.get(email=opponent_email)
-        except User.DoesNotExist:
-            self.is_guest = True
-            opponent = User.objects.create(email=opponent_email)
-            random_password = get_random_string(length=64)
-            opponent.set_password(random_password)
-            opponent.save()
+        if "opponent" in self.cleaned_data:
+            opponent_email = self.cleaned_data["opponent"]
+            try:
+                opponent = User.objects.get(email=opponent_email)
+            except User.DoesNotExist:
+                self.is_guest = True
+                opponent = User.objects.create(email=opponent_email)
+                random_password = get_random_string(length=64)
+                opponent.set_password(random_password)
+                opponent.save()
         return opponent
 
     def clean(self):
         cleaned_data = super().clean()
-        creator = str(cleaned_data["creator"])
+        creator = cleaned_data["creator"]
 
-        try:
-            opponent = str(cleaned_data["opponent"])
-        except Exception:
-            raise forms.ValidationError("ERROR: Please, type a valid email.")
-
-        if opponent == creator:
-            raise forms.ValidationError("ERROR: You can't challenge yourself.")
+        if "opponent" in cleaned_data:
+            opponent = cleaned_data["opponent"]
+            if opponent == creator:
+                raise forms.ValidationError("ERROR: You can't challenge yourself.")
 
     def save(self, commit=True):
         instance = super().save()

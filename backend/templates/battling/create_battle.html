@@ -12,6 +12,7 @@
     <p>
       <label for="opponent">Opponent:</label>
       <input id="opponent" name="opponent" type="text" list="users">
+      {{ form.errors.opponent }}
       <datalist id="users" name="opponent">
         {% for results in users %}
           <option value="{{results}}">
