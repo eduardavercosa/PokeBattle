@@ -19,7 +19,7 @@ def send_battle_invite(battle, team_opponent_id):
 
     send_templated_mail(
         template_name="battle_invite",
-        from_email="eduardavercosa@vinta.com.br",
+        from_email=settings.EMAIL,
         recipient_list=[battle.opponent.email],
         context={
             "battle_creator": battle.creator.email.split("@")[0],
@@ -35,7 +35,7 @@ def send_battle_result(battle, creator_pokemon_qs, opponent_pokemon_qs):
     battle_details_url = settings.HOST + battle_detail_path
     send_templated_mail(
         template_name="battle_result",
-        from_email="eduardavercosa@vinta.com.br",
+        from_email=settings.EMAIL,
         recipient_list=[battle.creator.email, battle.opponent.email],
         context={
             "battle_creator": battle.creator.email.split("@")[0],

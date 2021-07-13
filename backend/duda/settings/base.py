@@ -130,6 +130,9 @@ CELERY_TIMEZONE = TIME_ZONE
 SENTRY_DSN = config("SENTRY_DSN", default="")
 COMMIT_SHA = config("HEROKU_SLUG_COMMIT", default="")
 
+#Email
+EMAIL = config("EMAIL", default="")
+
 # Django Templated E-mail
 TEMPLATED_EMAIL_BACKEND = 'templated_email.backends.vanilla_django.TemplateBackend'
 

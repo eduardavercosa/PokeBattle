@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth.forms import PasswordResetForm
 from django.utils.crypto import get_random_string
 
@@ -70,7 +71,7 @@ class CreateBattleForm(forms.ModelForm):
                 self,
                 subject_template_name="registration/password_reset_subject.txt",
                 email_template_name="registration/password_reset_email.html",
-                from_email="eduardavercosa@vinta.com.br",
+                from_email=settings.EMAIL,
                 request=None,
                 html_email_template_name=None,
             )
