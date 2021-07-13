@@ -69,8 +69,8 @@ class CreateBattleForm(forms.ModelForm):
             invite_form.is_valid()
             invite_form.save(
                 self,
-                subject_template_name="registration/password_reset_subject.txt",
-                email_template_name="registration/password_reset_email.html",
+                subject_template_name="registration/invite_signup_subject.txt",
+                email_template_name="registration/invite_signup_email.html",
                 from_email=settings.EMAIL,
                 request=None,
                 html_email_template_name=None,
