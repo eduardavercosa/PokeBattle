@@ -70,7 +70,7 @@ class CreateBattleForm(forms.ModelForm):
                 self,
                 subject_template_name="registration/invite_signup_subject.txt",
                 email_template_name="registration/invite_signup_email.html",
-                from_email=settings.EMAIL,
+                from_email=settings.FROM_EMAIL,
                 request=None,
                 html_email_template_name=None,
             )
