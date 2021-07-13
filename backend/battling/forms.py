@@ -11,7 +11,6 @@ from pokemon.helpers import (
     pokemon_in_api,
 )
 from services.email import send_battle_invite
-from users.helper import is_email_valid
 from users.models import User
 
 
@@ -46,16 +45,14 @@ class CreateBattleForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        creator = str(cleaned_data["creator"])
 
         try:
             opponent = str(cleaned_data["opponent"])
         except Exception:
             raise forms.ValidationError("ERROR: Please, type a valid email.")
 
-        if not is_email_valid(opponent):
-            raise forms.ValidationError("ERROR: Please, type a valid email.")
-
-        if cleaned_data["opponent"] == cleaned_data["creator"]:
+        if opponent == creator:
             raise forms.ValidationError("ERROR: You can't challenge yourself.")
 
     def save(self, commit=True):
