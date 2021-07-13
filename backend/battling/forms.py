@@ -58,10 +58,11 @@ class CreateBattleForm(forms.ModelForm):
         instance = super().save()
         battle = self.instance
 
-        opponent_team_id = Team.objects.create(battle=battle, trainer=battle.opponent)
+        Team.objects.create(battle=battle, trainer=battle.creator)
+        opponent_team = Team.objects.create(battle=battle, trainer=battle.opponent)
 
         if not self.is_guest:
-            send_battle_invite(battle, opponent_team_id.id)
+            send_battle_invite(battle, opponent_team.id)
         else:
             invite_form = PasswordResetForm(data={"email": battle.opponent.email})
             invite_form.is_valid()
