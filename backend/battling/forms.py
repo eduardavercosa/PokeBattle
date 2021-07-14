@@ -73,6 +73,7 @@ class CreateBattleForm(forms.ModelForm):
                 from_email=settings.FROM_EMAIL,
                 request=None,
                 html_email_template_name=None,
+                extra_email_context={"HOST": settings.HOST},
             )
         return instance
 

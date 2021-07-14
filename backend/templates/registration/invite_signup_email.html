@@ -3,7 +3,7 @@
 
 {% translate "Please go to the following page and register:" %}
 {% block reset_link %}
-{{ protocol }}://{{ '127.0.0.1:8000' }}{% url 'signup_confirm' uidb64=uid token=token %}
+{{ HOST }}{% url 'signup_confirm' uidb64=uid token=token %}
 {% endblock %}
 
 {% endautoescape %}
