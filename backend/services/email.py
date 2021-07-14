@@ -4,10 +4,10 @@ from django.urls import reverse
 from templated_email import send_templated_mail
 
 
-def send_battle_invite(battle, team_opponent_id):
+def send_battle_invite(battle, opponent_team_id):
     battle_invite_path = reverse(
         "create_team",
-        args=[team_opponent_id],
+        args=[opponent_team_id],
     )
     battle_invite_url = settings.HOST + battle_invite_path
 
