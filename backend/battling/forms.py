@@ -33,16 +33,15 @@ class CreateBattleForm(forms.ModelForm):
         self.fields["creator"].widget = forms.HiddenInput()
 
     def clean_opponent(self):
-        if "opponent" in self.cleaned_data:
+        try:
             opponent_email = self.cleaned_data["opponent"]
-            try:
-                opponent = User.objects.get(email=opponent_email)
-            except User.DoesNotExist:
-                self.is_guest = True
-                opponent = User.objects.create(email=opponent_email)
-                random_password = get_random_string(length=64)
-                opponent.set_password(random_password)
-                opponent.save()
+            opponent = User.objects.get(email=opponent_email)
+        except User.DoesNotExist:
+            self.is_guest = True
+            opponent = User.objects.create(email=opponent_email)
+            random_password = get_random_string(length=64)
+            opponent.set_password(random_password)
+            opponent.save()
         return opponent
 
     def clean(self):
@@ -51,6 +50,7 @@ class CreateBattleForm(forms.ModelForm):
 
         if "opponent" in cleaned_data:
             opponent = cleaned_data["opponent"]
+
             if opponent == creator:
                 raise forms.ValidationError("ERROR: You can't challenge yourself.")
 
