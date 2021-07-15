@@ -40,7 +40,7 @@ class CreateBattleView(LoginRequiredMixin, CreateView):
 
         battle = form.save()
 
-        creator_team_id = Team.objects.get(battle=battle, trainer=self.request.user).id
+        creator_team_id = Team.objects.only("id").get(battle=battle, trainer=self.request.user).id
 
         return HttpResponseRedirect(reverse_lazy("create_team", args=(creator_team_id,)))
 
