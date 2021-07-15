@@ -10,7 +10,8 @@ from battling.forms import CreateBattleForm, CreateTeamForm
 from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import get_all_pokemon_from_api
 from services.battles import set_battle_winner
-from services.email import send_battle_invite, send_battle_result
+from services.email import send_battle_result
+from users.models import User
 
 
 class HomeView(TemplateView):
@@ -22,22 +23,26 @@ class CreateBattleView(LoginRequiredMixin, CreateView):
     form_class = CreateBattleForm
     template_name = "battling/create_battle.html"
 
+    def get_initial(self):
+        obj_creator = self.request.user
+        self.initial = {"creator": obj_creator}
+        return self.initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        users = User.objects.all()
+        context["users"] = users
+        return context
+
     def form_valid(self, form):
         form.instance.creator = self.request.user
         form.instance.status = Battle.BattleStatus.ONGOING
 
         battle = form.save()
 
-        team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
+        creator_team_id = Team.objects.only("id").get(battle=battle, trainer=self.request.user).id
 
-        team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
-
-        send_battle_invite(battle, team_opponent.id)
-
-        return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
-
-    def get_initial(self):
-        return {"creator_id": self.request.user.id}
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(creator_team_id,)))
 
 
 class CreateTeamView(LoginRequiredMixin, UpdateView):

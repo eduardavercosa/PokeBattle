@@ -1,4 +1,7 @@
 from django import forms
+from django.conf import settings
+from django.contrib.auth.forms import PasswordResetForm
+from django.utils.crypto import get_random_string
 
 from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import (
@@ -8,17 +11,71 @@ from pokemon.helpers import (
     is_team_valid,
     pokemon_in_api,
 )
+from services.email import send_battle_invite
 from users.models import User
 
 
 class CreateBattleForm(forms.ModelForm):
+    opponent = forms.EmailField(
+        required=True,
+    )
+
     class Meta:
         model = Battle
-        fields = ("opponent",)
+        fields = [
+            "creator",
+            "opponent",
+        ]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["opponent"].queryset = User.objects.exclude(id=self.initial["creator_id"])
+        super(CreateBattleForm, self).__init__(*args, **kwargs)
+        self.is_guest = False
+        self.fields["creator"].widget = forms.HiddenInput()
+
+    def clean_opponent(self):
+        try:
+            opponent_email = self.cleaned_data["opponent"]
+            opponent = User.objects.get(email=opponent_email)
+        except User.DoesNotExist:
+            self.is_guest = True
+            opponent = User.objects.create(email=opponent_email)
+            random_password = get_random_string(length=64)
+            opponent.set_password(random_password)
+            opponent.save()
+        return opponent
+
+    def clean(self):
+        cleaned_data = super().clean()
+        creator = cleaned_data["creator"]
+
+        if "opponent" in cleaned_data:
+            opponent = cleaned_data["opponent"]
+
+            if opponent == creator:
+                raise forms.ValidationError("ERROR: You can't challenge yourself.")
+
+    def save(self, commit=True):
+        instance = super().save()
+        battle = self.instance
+
+        Team.objects.create(battle=battle, trainer=battle.creator)
+        opponent_team = Team.objects.create(battle=battle, trainer=battle.opponent)
+
+        if not self.is_guest:
+            send_battle_invite(battle, opponent_team.id)
+        else:
+            invite_form = PasswordResetForm(data={"email": battle.opponent.email})
+            invite_form.is_valid()
+            invite_form.save(
+                self,
+                subject_template_name="registration/invite_signup_subject.txt",
+                email_template_name="registration/invite_signup_email.html",
+                from_email=settings.FROM_EMAIL,
+                request=None,
+                html_email_template_name=None,
+                extra_email_context={"HOST": settings.HOST},
+            )
+        return instance
 
 
 POSITION_CHOICES = [(1, 1), (2, 2), (3, 3)]
