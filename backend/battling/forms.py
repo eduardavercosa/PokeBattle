@@ -7,6 +7,7 @@ from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import (
     get_or_create_pokemon,
     get_pokemon_from_api,
+    has_repeated_pokemon,
     has_repeated_positions,
     is_team_valid,
     pokemon_in_api,
@@ -128,6 +129,10 @@ class CreateTeamForm(forms.ModelForm):
             pokemon_exists_in_api = pokemon_in_api(pokemon)
             if not pokemon_exists_in_api:
                 raise forms.ValidationError("ERROR: Choose only existing Pokemon.")
+
+        team_has_repeated_pokemon = has_repeated_pokemon(pokemon_names)
+        if team_has_repeated_pokemon:
+            raise forms.ValidationError("You can't choose the same Pokemon more than once.")
 
         pokemon_position_list = [
             (cleaned_data["pokemon_1_position"]),

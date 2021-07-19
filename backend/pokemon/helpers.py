@@ -66,3 +66,11 @@ def get_or_create_pokemon(pokemon_data):
 
 def has_repeated_positions(pokemon_position_list):
     return len(pokemon_position_list) != len(set(pokemon_position_list))
+
+
+def has_repeated_pokemon(pokemon_names):
+    for pokemon in pokemon_names:
+        pokemon_count = pokemon_names.count(pokemon)
+        if pokemon_count > 1:
+            return True
+    return False
