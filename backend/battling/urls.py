@@ -42,7 +42,10 @@ urlpatterns = [
     # Reset password urls
     path(
         "password_reset/",
-        views.PasswordResetView.as_view(template_name="registration/password_reset_form.html"),
+        views.PasswordResetView.as_view(
+            template_name="registration/password_reset_form.html",
+            from_email="eduardavercosa@vinta.com.br",
+        ),
         name="password_reset_form",
     ),
     path(
