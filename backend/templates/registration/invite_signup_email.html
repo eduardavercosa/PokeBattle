@@ -1,0 +1,9 @@
+{% load i18n %}{% autoescape off %}
+{% blocktranslate %}You've been invited to join Pokebattle!{% endblocktranslate %}
+
+{% translate "Please go to the following page and register:" %}
+{% block reset_link %}
+{{ HOST }}{% url 'signup_confirm' uidb64=uid token=token %}
+{% endblock %}
+
+{% endautoescape %}

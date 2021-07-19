@@ -1,15 +1,13 @@
-from urllib.parse import urljoin
-
 from django.conf import settings
 from django.urls import reverse
 
 from templated_email import send_templated_mail
 
 
-def send_battle_invite(battle, team_opponent_id):
+def send_battle_invite(battle, opponent_team_id):
     battle_invite_path = reverse(
         "create_team",
-        args=[team_opponent_id],
+        args=[opponent_team_id],
     )
     battle_invite_url = settings.HOST + battle_invite_path
 
@@ -21,7 +19,7 @@ def send_battle_invite(battle, team_opponent_id):
 
     send_templated_mail(
         template_name="battle_invite",
-        from_email="eduardavercosa@vinta.com.br",
+        from_email=settings.FROM_EMAIL,
         recipient_list=[battle.opponent.email],
         context={
             "battle_creator": battle.creator.email.split("@")[0],
@@ -32,20 +30,18 @@ def send_battle_invite(battle, team_opponent_id):
     )
 
 
-def send_battle_result(battle, creator_pokemon_list, opponent_pokemon_list):
+def send_battle_result(battle):
     battle_detail_path = reverse("battle_detail", args=[battle.id])
-    battle_details_url = urljoin(settings.HOST, battle_detail_path)
+    battle_details_url = settings.HOST + battle_detail_path
     send_templated_mail(
         template_name="battle_result",
-        from_email="eduardavercosa@vinta.com.br",
+        from_email=settings.FROM_EMAIL,
         recipient_list=[battle.creator.email, battle.opponent.email],
         context={
             "battle_creator": battle.creator.email.split("@")[0],
             "battle_opponent": battle.opponent.email.split("@")[0],
             "battle_winner": battle.winner.email.split("@")[0],
             "battle_id": battle.id,
-            "creator_team": [pokemon.name for pokemon in creator_pokemon_list],
-            "opponent_team": [pokemon.name for pokemon in opponent_pokemon_list],
             "battle_details_url": battle_details_url,
         },
     )

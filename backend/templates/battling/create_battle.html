@@ -1,11 +1,25 @@
-{% extends "battling/base.html" %}
-
+{% extends 'base.html' %}
 {% block content %}
 <div class="teste">
   <p class="title_battle">New battle</p>
+  <div>
+    {{ form.non_field_errors }}
+  </div>
   <form method="POST" class="battle-form">{% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="button_next">Next</button>
+    {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+    {% endfor %}
+    <p>
+      <label for="opponent">Opponent:</label>
+      <input id="opponent" name="opponent" type="text" list="users">
+      {{ form.errors.opponent }}
+      <datalist id="users" name="opponent">
+        {% for results in users %}
+          <option value="{{results}}">
+        {% endfor %}
+      </datalist>
+    </p>
+    <input type="submit" value="Next" class="button_next">
   </form>
 
   <a class="button_next" role="button" onClick="javascript:history.go(-1)">

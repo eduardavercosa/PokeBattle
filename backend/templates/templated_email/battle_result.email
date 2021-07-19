@@ -4,15 +4,6 @@
 
   <p><b>{{battle_creator}}</b> challenged <b>{{battle_opponent}}</b> on <b>Battle #{{battle_id}}</b> and now we have the results!</p>
 
-  <p>
-    <div style="border: 1px solid #000; padding: 10px; width: 45%;">
-      <div>{{battle_creator}}'s team was: {{creator_team}}</div>
-    </div>
-    <div style="border: 1px solid #000; padding: 10px; width: 45%; margin-top: 7px;">
-      <div>{{battle_opponent}}'s team was: {{opponent_team}}</div>
-    </div>
-  </p>
-
   <p style="font-size: 18px;">And the winner is... <b>{{battle_winner}}</b>!!!</p>
 
   <p>You can see more details about this battle <a href="{{battle_details_url}}">here.</a></p>

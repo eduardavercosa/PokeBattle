@@ -1,4 +1,4 @@
-{% extends "battling/base.html" %}
+{% extends "base.html" %}
 {% load battling_tags %}
 
 {% block content %}
@@ -45,6 +45,7 @@
     <table>
       <tr>
         <th>Pokemon</th>
+        <th>name</th>
         <th>attack</th>
         <th>defense</th>
         <th>hp</th>
@@ -52,7 +53,9 @@
 
       {% for pokemon in opponent_team %}
         <tr>
-          <th> {{pokemon.img_url}}</th>
+          <th>
+            <img src="{{pokemon.img_url}}" height="90px"/>
+          </th>
           <th> {{pokemon.name}}</th>
           <th> {{pokemon.attack}}</th>
           <th> {{pokemon.defense}}</th>

@@ -3,6 +3,7 @@
 import os
 
 from decouple import config  # noqa
+from django.urls import reverse_lazy
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -23,6 +24,13 @@ ADMINS = (("Admin", "eduardavercosa@vinta.com.br"),)
 AUTH_USER_MODEL = "users.User"
 STATUS_MODEL = "sequence.Status"
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "social_core.backends.google.GoogleOAuth2",
+]
+
+LOGIN_REDIRECT_URL = reverse_lazy("home")
+
 POKE_API_URL = "https://pokeapi.co/api/v2/pokemon/"
 
 ALLOWED_HOSTS = []
@@ -35,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_js_reverse",
+    "social_django",
     "rest_framework",
     "webpack_loader",
     "import_export",
@@ -94,7 +103,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOGIN_URL = 'login'
+
 STATICFILES_DIRS = (base_dir_join("../frontend"),)
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Webpack
 WEBPACK_LOADER = {
@@ -117,5 +130,14 @@ CELERY_TIMEZONE = TIME_ZONE
 SENTRY_DSN = config("SENTRY_DSN", default="")
 COMMIT_SHA = config("HEROKU_SLUG_COMMIT", default="")
 
+#Email
+FROM_EMAIL = config("FROM_EMAIL", default="")
+
 # Django Templated E-mail
 TEMPLATED_EMAIL_BACKEND = 'templated_email.backends.vanilla_django.TemplateBackend'
+
+# Google Social Login
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", default="")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = config("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", default="")
+
+

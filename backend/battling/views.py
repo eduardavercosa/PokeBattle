@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
@@ -6,19 +7,31 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from django.views.generic.base import TemplateView
 
 from battling.forms import CreateBattleForm, CreateTeamForm
-from battling.models import Battle, Team
-from services.battles import set_battle_winner
-from services.email import send_battle_invite, send_battle_result
+from battling.models import Battle, PokemonTeam, Team
+from battling.tasks import run_battle_and_send_result_email
+from pokemon.helpers import get_all_pokemon_from_api
+from users.models import User
 
 
-class Home(TemplateView):
+class HomeView(TemplateView):
     template_name = "battling/home.html"
 
 
-class CreateBattle(CreateView):
+class CreateBattleView(LoginRequiredMixin, CreateView):
     model = Battle
     form_class = CreateBattleForm
     template_name = "battling/create_battle.html"
+
+    def get_initial(self):
+        obj_creator = self.request.user
+        self.initial = {"creator": obj_creator}
+        return self.initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        users = User.objects.all()
+        context["users"] = users
+        return context
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
@@ -26,19 +39,12 @@ class CreateBattle(CreateView):
 
         battle = form.save()
 
-        team_creator = Team.objects.create(battle=battle, trainer=self.request.user)
+        creator_team_id = Team.objects.only("id").get(battle=battle, trainer=self.request.user).id
 
-        team_opponent = Team.objects.create(battle=battle, trainer=battle.opponent)
-
-        send_battle_invite(battle, team_opponent.id)
-
-        return HttpResponseRedirect(reverse_lazy("create_team", args=(team_creator.id,)))
-
-    def get_initial(self):
-        return {"creator_id": self.request.user.id}
+        return HttpResponseRedirect(reverse_lazy("create_team", args=(creator_team_id,)))
 
 
-class CreateTeam(UpdateView):
+class CreateTeamView(LoginRequiredMixin, UpdateView):
     model = Team
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
@@ -62,8 +68,7 @@ class CreateTeam(UpdateView):
         opponent_pokemons = opponent.pokemons.all()
 
         if creator_pokemons and opponent_pokemons:
-            set_battle_winner(battle)
-            send_battle_result(battle, creator_pokemons, opponent_pokemons)
+            run_battle_and_send_result_email.delay(battle.id)
             messages.success(self.request, "Battle ended! Check your e-mail for results.")
 
         else:
@@ -71,8 +76,14 @@ class CreateTeam(UpdateView):
 
         return HttpResponseRedirect(reverse_lazy("home"))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pokemons = get_all_pokemon_from_api()
+        context["pokemons"] = pokemons
+        return context
 
-class DeleteBattle(DeleteView):
+
+class DeleteBattleView(LoginRequiredMixin, DeleteView):
     template_name = "battling/delete_battle.html"
     success_url = reverse_lazy("home")
 
@@ -85,7 +96,7 @@ class DeleteBattle(DeleteView):
         return reverse_lazy("home")
 
 
-class BattleList(ListView):  # pylint: disable=too-many-ancestors
+class BattleListView(LoginRequiredMixin, ListView):  # pylint: disable=too-many-ancestors
     template_name = "battling/battle_list.html"
     model = Battle
 
@@ -106,19 +117,27 @@ class BattleList(ListView):  # pylint: disable=too-many-ancestors
         return context
 
 
-class DetailBattle(DetailView):
+class DetailBattleView(LoginRequiredMixin, DetailView):
     template_name = "battling/battle_detail.html"
-    model = Battle
+
+    def get_queryset(self):
+        return Battle.objects.select_related("winner", "creator", "opponent")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        battle = self.get_object()
+        battle = context["object"]
 
-        creator = Team.objects.get(battle=battle, trainer=battle.creator.id)
-        context["creator_team"] = creator.pokemons.all()
+        creator_pokemon_qs = PokemonTeam.objects.filter(
+            team__battle=battle, team__trainer=battle.creator
+        ).select_related("pokemon")
+        creator_pokemon_qs = creator_pokemon_qs.order_by("order")
+        context["creator_team"] = [pokemon.pokemon for pokemon in creator_pokemon_qs]
 
-        opponent = Team.objects.get(battle=battle, trainer=battle.opponent.id)
-        context["opponent_team"] = opponent.pokemons.all()
+        opponent_pokemon_qs = PokemonTeam.objects.filter(
+            team__battle=battle, team__trainer=battle.opponent
+        ).select_related("pokemon")
+        opponent_pokemon_qs = opponent_pokemon_qs.order_by("order")
+        context["opponent_team"] = [pokemon.pokemon for pokemon in opponent_pokemon_qs]
 
         context["settled"] = Battle.BattleStatus.SETTLED
         context["ongoing"] = Battle.BattleStatus.ONGOING

@@ -1,4 +1,4 @@
-{% extends "battling/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 {% for message in messages %}
@@ -6,6 +6,8 @@
   {{message}}
 </div>
 {% endfor %}
+
+{% if request.user.is_authenticated %}
 <a class="button_battle" href="{% url 'create_battle' %}" role="button">
   <p class="text_button">Create a new battle</p>
 </a>
@@ -13,4 +15,16 @@
 <a class="button_battle" href="{% url 'battle_list' %}" role="button">
   <p class="text_button">My battles</p>
 </a>
+
+<a class="logout" href="{% url 'logout' %}">Logout</a>
+
+{% else %}
+<a class="button_battle" href="{% url 'login' %}" role="button">
+  <p class="text_button">Login</p>
+</a>
+
+<a class="button_battle" href="{% url 'signup' %}" role="button">
+  <p class="text_button">Signup</p>
+</a>
+{% endif %}
 {% endblock %}
