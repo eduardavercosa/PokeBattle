@@ -4,7 +4,6 @@ from model_bakery import baker
 
 from battling.models import PokemonTeam
 from pokemon.models import Pokemon
-from users.models import User
 
 
 class CreateBattleTest(TestCase):
@@ -33,36 +32,32 @@ class CreateBattleTest(TestCase):
 
 class CreatePokemonTest(TestCase):
     def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create(email="eduardavercosa@vinta.com.br", password="admin")
-        self.user.set_password("admin")
-        self.user.save()
+        self.creator = baker.make("users.User")
+        self.creator.set_password("admin")
+        self.creator.save()
 
-        self.battle = baker.make("battling.Battle", creator=self.user, _quantity=1)
+        self.battle = baker.make("battling.Battle", creator=self.creator, _quantity=1)
         self.team = baker.make(
-            "battling.Team", battle=self.battle[0], trainer=self.user, _quantity=1
+            "battling.Team", battle=self.battle[0], trainer=self.creator, _quantity=1
         )
 
-        self.pokemon_1 = Pokemon.objects.create(
+        self.pokemon_1 = baker.make(
+            "pokemon.Pokemon",
             poke_id=18,
-            name="pidgeot",
-            img_url="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png",  # noqa
             attack=70,
             defense=70,
             hp=101,
         )
-        self.pokemon_2 = Pokemon.objects.create(
+        self.pokemon_2 = baker.make(
+            "pokemon.Pokemon",
             poke_id=16,
-            name="pidgey",
-            img_url="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png",  # noqa
             attack=35,
             defense=35,
             hp=56,
         )
-        self.pokemon_3 = Pokemon.objects.create(
+        self.pokemon_3 = baker.make(
+            "pokemon.Pokemon",
             poke_id=17,
-            name="pidgeotto",
-            img_url="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png",  # noqa
             attack=50,
             defense=50,
             hp=71,
