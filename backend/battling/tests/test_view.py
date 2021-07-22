@@ -15,10 +15,23 @@ class CreateBattleTest(TestCase):
         self.creator.save()
         self.opponent = baker.make("users.User")
 
-    def test_create_battle(self):
+    def test_create_zero_battle(self):
+        self.client.login(username=self.creator.email, password="admin")
+
+        battle_data = {
+            "creator": self.creator,
+            "opponent": self.opponent,
+        }
+
+        response = self.client.get("/battle/list/", battle_data)
+        response_qs = response.context_data.get("battle_list")
+
+        self.assertFalse(response_qs)
+
+    def test_create_one_battle(self):
         self.client.login(username=self.creator.email, password="admin")
         battle = baker.make(
-            "battling.Battle", creator=self.creator, opponent=self.opponent, _quantity=2
+            "battling.Battle", creator=self.creator, opponent=self.opponent, _quantity=1
         )
         battle_data = {
             "creator": self.creator,
@@ -27,7 +40,59 @@ class CreateBattleTest(TestCase):
 
         response = self.client.get("/battle/list/", battle_data)
         response_qs = response.context_data.get("battle_list")
+
+        for i in battle:
+            battle_content = [i.creator, i.opponent]
+
+        for j in response_qs:
+            response_content = [j.creator, j.opponent]
+
         self.assertCountEqual(battle, response_qs)
+        self.assertCountEqual(battle_content, response_content)
+
+    def test_create_few_battle(self):
+        self.client.login(username=self.creator.email, password="admin")
+        battle = baker.make(
+            "battling.Battle", creator=self.creator, opponent=self.opponent, _quantity=5
+        )
+        battle_data = {
+            "creator": self.creator,
+            "opponent": self.opponent,
+        }
+
+        response = self.client.get("/battle/list/", battle_data)
+        response_qs = response.context_data.get("battle_list")
+
+        for i in battle:
+            battle_content = [i.creator, i.opponent]
+
+        for j in response_qs:
+            response_content = [j.creator, j.opponent]
+
+        self.assertCountEqual(battle, response_qs)
+        self.assertCountEqual(battle_content, response_content)
+
+    def test_create_many_battles(self):
+        self.client.login(username=self.creator.email, password="admin")
+        battle = baker.make(
+            "battling.Battle", creator=self.creator, opponent=self.opponent, _quantity=25
+        )
+        battle_data = {
+            "creator": self.creator,
+            "opponent": self.opponent,
+        }
+
+        response = self.client.get("/battle/list/", battle_data)
+        response_qs = response.context_data.get("battle_list")
+
+        for i in battle:
+            battle_content = [i.creator, i.opponent]
+
+        for j in response_qs:
+            response_content = [j.creator, j.opponent]
+
+        self.assertCountEqual(battle, response_qs)
+        self.assertCountEqual(battle_content, response_content)
 
 
 class CreatePokemonTest(TestCase):
