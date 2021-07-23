@@ -36,12 +36,7 @@ class PokemonSumTest(TestCase):
             hp=101,
         )
 
-        self.pokemon_1.save()
-        self.pokemon_2.save()
-        self.pokemon_3.save()
-        self.pokemon_4.save()
-
-    def test_team_sum(self):
+    def test_if_team_is_valid(self):
         pokemon_1 = {
             "poke_id": self.pokemon_1.poke_id,
             "defense": self.pokemon_1.defense,
