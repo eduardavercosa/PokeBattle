@@ -35,13 +35,10 @@ class CreateBattleViewTest(TestCase):
 
         self.client.login(username=self.creator.email, password="admin")
         self.client.post(reverse("create_battle"), battle_data)
-        battle = Battle.objects.filter(creator=self.creator, opponent=self.opponent)
+        battle = Battle.objects.get(creator=self.creator, opponent=self.opponent)
 
-        self.assertTrue(battle)
-
-        for _, single_battle in enumerate(battle):
-            self.assertCountEqual(single_battle.creator.email, self.creator.email)
-            self.assertCountEqual(single_battle.opponent.email, self.opponent.email)
+        self.assertCountEqual(battle.creator.email, self.creator.email)
+        self.assertCountEqual(battle.opponent.email, self.opponent.email)
 
     def test_create_battle_with_multiple_requests(self):
         battle_data = {
@@ -61,19 +58,12 @@ class CreateBattleViewTest(TestCase):
         battle = Battle.objects.filter(creator=self.creator)
         assert len(battle) == 2
 
-        for _, single_battle in enumerate(battle):
-            self.assertCountEqual(single_battle.creator.email, self.creator.email)
-
-        battle1 = Battle.objects.filter(creator=self.creator, opponent=self.opponent)
+        battle1 = Battle.objects.get(creator=self.creator, opponent=self.opponent)
         assert len(battle1) == 1
+        self.assertCountEqual(battle.creator.email, self.creator.email)
+        self.assertCountEqual(battle.opponent.email, self.opponent.email)
 
-        for _, single_battle in enumerate(battle1):
-            self.assertCountEqual(single_battle.creator.email, self.creator.email)
-            self.assertCountEqual(single_battle.opponent.email, self.opponent.email)
-
-        battle2 = Battle.objects.filter(creator=self.creator, opponent=self.opponent2)
+        battle2 = Battle.objects.get(creator=self.creator, opponent=self.opponent2)
         assert len(battle2) == 1
-
-        for _, single_battle in enumerate(battle2):
-            self.assertCountEqual(single_battle.creator.email, self.creator.email)
-            self.assertCountEqual(single_battle.opponent.email, self.opponent2.email)
+        self.assertCountEqual(battle.creator.email, self.creator.email)
+        self.assertCountEqual(battle.opponent.email, self.opponent2.email)
