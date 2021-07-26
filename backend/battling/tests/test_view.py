@@ -1,4 +1,5 @@
 from django.test import Client, TestCase
+from django.urls import reverse
 
 from model_bakery import baker
 
@@ -21,7 +22,7 @@ class CreateBattleViewTest(TestCase):
             "opponent": self.opponent.email,
         }
 
-        self.client.post("/battle/new/", battle_data)
+        self.client.post(reverse("create_battle"), battle_data)
         battle = Battle.objects.filter(creator=self.creator, opponent=self.opponent)
 
         self.assertFalse(battle)
@@ -38,7 +39,7 @@ class CreateBattleViewTest(TestCase):
         }
 
         self.client.login(username=self.creator.email, password="admin")
-        self.client.post("/battle/new/", battle_data)
+        self.client.post(reverse("create_battle"), battle_data)
         battle = Battle.objects.filter(creator=self.creator, opponent=self.opponent)
 
         self.assertTrue(battle)
@@ -55,7 +56,7 @@ class CreateBattleViewTest(TestCase):
 
         self.client.login(username=self.creator.email, password="admin")
         for _ in range(5):
-            self.client.post("/battle/new/", battle_data)
+            self.client.post(reverse("create_battle"), battle_data)
 
         battle = Battle.objects.filter(creator=self.creator, opponent=self.opponent)
         self.assertTrue(battle)
@@ -72,7 +73,7 @@ class CreateBattleViewTest(TestCase):
 
         self.client.login(username=self.creator.email, password="admin")
         for _ in range(50):
-            self.client.post("/battle/new/", battle_data)
+            self.client.post(reverse("create_battle"), battle_data)
 
         battle = Battle.objects.filter(creator=self.creator, opponent=self.opponent)
         self.assertTrue(battle)
@@ -93,8 +94,8 @@ class CreateBattleViewTest(TestCase):
         }
 
         self.client.login(username=self.creator.email, password="admin")
-        self.client.post("/battle/new/", battle_data)
-        self.client.post("/battle/new/", battle2_data)
+        self.client.post(reverse("create_battle"), battle_data)
+        self.client.post(reverse("create_battle"), battle2_data)
 
         battle = Battle.objects.filter(creator=self.creator)
         assert len(battle) == 2
