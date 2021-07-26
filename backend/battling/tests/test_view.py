@@ -82,7 +82,7 @@ class CreateBattleViewTest(TestCase):
             self.assertCountEqual(single_battle.creator.email, self.creator.email)
             self.assertCountEqual(single_battle.opponent.email, self.opponent.email)
 
-    def test_create_battle_diff(self):
+    def test_create_battle_with_multiple_requests(self):
         battle_data = {
             "creator": self.creator.id,
             "opponent": self.opponent.email,
