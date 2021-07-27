@@ -33,8 +33,8 @@ class CreateBattleViewTest(TestCaseUtils):
         self.auth_client.post(reverse("create_battle"), battle_data)
         battle = Battle.objects.get(creator=self.user, opponent=self.opponent)
 
-        self.assertCountEqual(battle.creator.email, self.user.email)
-        self.assertCountEqual(battle.opponent.email, self.opponent.email)
+        self.assertEqual(battle.creator.email, self.user.email)
+        self.assertEqual(battle.opponent.email, self.opponent.email)
 
     def test_create_battle_with_multiple_requests(self):
         battle_data = {
@@ -53,19 +53,13 @@ class CreateBattleViewTest(TestCaseUtils):
         battle = Battle.objects.filter(creator=self.user)
         assert len(battle) == 2
 
-        battle1 = Battle.objects.filter(creator=self.user, opponent=self.opponent)
-        assert len(battle1) == 1
-
         battle1 = Battle.objects.get(creator=self.user, opponent=self.opponent)
-        self.assertCountEqual(battle1.creator.email, self.user.email)
-        self.assertCountEqual(battle1.opponent.email, self.opponent.email)
-
-        battle2 = Battle.objects.filter(creator=self.user, opponent=self.opponent2)
-        assert len(battle2) == 1
+        self.assertEqual(battle1.creator.email, self.user.email)
+        self.assertEqual(battle1.opponent.email, self.opponent.email)
 
         battle2 = Battle.objects.get(creator=self.user, opponent=self.opponent2)
-        self.assertCountEqual(battle2.creator.email, self.user.email)
-        self.assertCountEqual(battle2.opponent.email, self.opponent2.email)
+        self.assertEqual(battle2.creator.email, self.user.email)
+        self.assertEqual(battle2.opponent.email, self.opponent2.email)
 
 
 class CreateTeamViewTest(TestCaseUtils):
@@ -95,15 +89,15 @@ class CreateTeamViewTest(TestCaseUtils):
 
         pokemon_team = PokemonTeam.objects.filter(team=self.team.id)
 
-        pokemon_set = [
+        pokemon_set = {
             pokemon_data["pokemon_1"],
             pokemon_data["pokemon_2"],
             pokemon_data["pokemon_3"],
-        ]
+        }
 
-        self.assertEqual(set(pokemon_set), set([pk.pokemon.name for pk in pokemon_team]))
+        self.assertEqual(pokemon_set, {pk.pokemon.name for pk in pokemon_team})
 
-    def test_create_team_with_user_not_logged(self):
+    def test_does_not_create_team_with_user_not_logged(self):
         self.auth_client.logout()
         pokemon_data = {
             "pokemon_1": "pidgeotto",
@@ -113,15 +107,14 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3": "pidgey",
             "pokemon_3_position": 3,
         }
-        self.auth_client.post(
+        response = self.auth_client.post(
             reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
         )
 
-        team = PokemonTeam.objects.filter(team=self.team.id)
+        team_id = str(self.team.id)
+        self.assertRedirects(response, "/account/login/?next=/team/" + team_id + "/edit/")
 
-        self.assertFalse(team)
-
-    def test_create_team_with_wrong_pokemon_name(self):
+    def test_does_not_create_team_with_wrong_pokemon_name(self):
         pokemon_data = {
             "pokemon_1": "random",
             "pokemon_1_position": 1,
@@ -139,7 +132,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "ERROR: Choose only existing Pokemon.",
         )
 
-    def test_create_team_with_same_pokemon_position(self):
+    def test_does_not_create_team_with_same_pokemon_position(self):
         pokemon_data = {
             "pokemon_1": "pidgeotto",
             "pokemon_1_position": 1,
@@ -157,7 +150,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "Each Pokemon must have a unique position.",
         )
 
-    def test_create_team_with_repeated_pokemon(self):
+    def test_does_not_create_team_with_repeated_pokemon(self):
         pokemon_data = {
             "pokemon_1": "pidgeotto",
             "pokemon_1_position": 1,
