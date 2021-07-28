@@ -1,8 +1,11 @@
+from unittest.mock import patch
+
+from django.conf import settings
 from django.urls import reverse
 
 from model_bakery import baker
 
-from battling.models import Battle, PokemonTeam
+from battling.models import Battle, PokemonTeam, Team
 from common.utils.tests import TestCaseUtils
 
 
@@ -60,6 +63,34 @@ class CreateBattleViewTest(TestCaseUtils):
         battle2 = Battle.objects.get(creator=self.user, opponent=self.opponent2)
         self.assertEqual(battle2.creator.email, self.user.email)
         self.assertEqual(battle2.opponent.email, self.opponent2.email)
+
+    @patch("services.email.send_templated_mail")
+    def test_if_invitation_email_is_sent(self, mock_templated_mail):
+        battle_data = {
+            "creator": self.user.id,
+            "opponent": self.opponent.email,
+        }
+
+        self.auth_client.post(reverse("create_battle"), battle_data)
+
+        battle = Battle.objects.filter(creator=self.user, opponent=self.opponent)
+
+        self.assertTrue(battle)
+
+        opponent_team = Team.objects.filter(trainer=self.opponent)[0]
+
+        mock_templated_mail.assert_called_with(
+            template_name="battle_invite",
+            from_email=settings.FROM_EMAIL,
+            recipient_list=[self.opponent.email],
+            context={
+                "battle_creator": self.user.email.split("@")[0],
+                "battle_opponent": self.opponent.email.split("@")[0],
+                "battle_invite_url": settings.HOST
+                + reverse("create_team", args=[opponent_team.id]),
+                "battle_delete_url": settings.HOST + reverse("delete_battle", args=[battle[0].id]),
+            },
+        )
 
 
 class CreateTeamViewTest(TestCaseUtils):
