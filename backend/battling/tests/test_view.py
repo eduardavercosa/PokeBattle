@@ -202,7 +202,8 @@ class CreateTeamViewTest(TestCaseUtils):
             "You can't choose the same Pokemon more than once.",
         )
 
-    def test_run_battle_and_send_result_email(self):
+    @patch("services.email.send_templated_mail")
+    def test_run_battle_and_send_result_email(self, email_mock):
 
         for count, pokemon in enumerate(self.pokemon_list):
             PokemonTeam.objects.create(team=self.creator_team, pokemon=pokemon, order=count + 1)
@@ -214,4 +215,18 @@ class CreateTeamViewTest(TestCaseUtils):
 
         self.assertEqual(
             self.opponent, Battle.objects.get(creator=self.user, opponent=self.opponent).winner
+        )
+        battle = Battle.objects.get(creator=self.user, opponent=self.opponent)
+
+        email_mock.assert_called_with(
+            template_name="battle_result",
+            from_email=settings.FROM_EMAIL,
+            recipient_list=[battle.creator.email, battle.opponent.email],
+            context={
+                "battle_creator": battle.creator.email.split("@")[0],
+                "battle_opponent": battle.opponent.email.split("@")[0],
+                "battle_winner": battle.winner.email.split("@")[0],
+                "battle_id": battle.id,
+                "battle_details_url": settings.HOST + reverse("battle_detail", args=[battle.id]),
+            },
         )
