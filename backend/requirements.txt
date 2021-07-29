@@ -53,6 +53,7 @@ lazy-object-proxy==1.4.3
 MarkupPy==1.14
 mccabe==0.6.1
 model-bakery==1.2.1
+model-mommy==2.0.0
 mypy-extensions==0.4.3
 oauth2==1.9.0.post1
 oauthlib==3.1.1
