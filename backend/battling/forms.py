@@ -120,6 +120,17 @@ class CreateTeamForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
+        for field in [
+            "pokemon_1",
+            "pokemon_1_position",
+            "pokemon_2",
+            "pokemon_2_position",
+            "pokemon_3",
+            "pokemon_3_position",
+        ]:
+            if field not in cleaned_data:
+                raise forms.ValidationError("ERROR: All fields are required.")
+
         pokemon_names = [
             cleaned_data["pokemon_1"],
             cleaned_data["pokemon_2"],
