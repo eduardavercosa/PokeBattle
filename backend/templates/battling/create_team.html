@@ -3,69 +3,73 @@
 {% block content %}
 <div class="teste">
   <p class="title_battle">Choose your pokemons!</p>
-  <div>
-    {{ form.non_field_errors }}
-  </div>
-  <form method="POST" class="battle-form">{% csrf_token %}
-    <p>
-      <label for="id_pokemon_1">Pokemon 1:</label>
-      <input id="pokemon_1" name="pokemon_1" type="text" list="pokemons">
-      <datalist id="pokemons" name="pokemon_1">
-        {% for results in pokemons %}
-        <option value="{{results.name}}">
-          {% endfor %}
-      </datalist>
-    </p>
-    <p><label for="id_pokemon_1_position">Pokemon position:</label> <select name="pokemon_1_position"
-        id="id_pokemon_1_position">
-        <option value="1">1</option>
+  {% if user != team.trainer %}
+    <p>You can't acess this page</p>
+  {% else %}
+    <div>
+      {{ form.non_field_errors }}
+    </div>
+    <form method="POST" class="battle-form">{% csrf_token %}
+      <p>
+        <label for="id_pokemon_1">Pokemon 1:</label>
+        <input id="pokemon_1" name="pokemon_1" type="text" list="pokemons">
+        <datalist id="pokemons" name="pokemon_1">
+          {% for results in pokemons %}
+          <option value="{{results.name}}">
+            {% endfor %}
+        </datalist>
+      </p>
+      <p><label for="id_pokemon_1_position">Pokemon position:</label> <select name="pokemon_1_position"
+          id="id_pokemon_1_position">
+          <option value="1">1</option>
 
-        <option value="2">2</option>
+          <option value="2">2</option>
 
-        <option value="3">3</option>
+          <option value="3">3</option>
 
-      </select></p>
+        </select></p>
 
-    <p>
-      <label for="id_pokemon_2">Pokemon 2:</label>
-      <input id="pokemon_2" name="pokemon_2" type="text" list="pokemons">
-      <datalist id="pokemons" name="pokemon_2">
-        {% for results in pokemons %}
-        <option value="{{results.name}}">
-          {% endfor %}
-      </datalist>
-    </p>
-    <p><label for="id_pokemon_2_position">Pokemon position:</label> <select name="pokemon_2_position"
-        id="id_pokemon_2_position">
-        <option value="1">1</option>
+      <p>
+        <label for="id_pokemon_2">Pokemon 2:</label>
+        <input id="pokemon_2" name="pokemon_2" type="text" list="pokemons">
+        <datalist id="pokemons" name="pokemon_2">
+          {% for results in pokemons %}
+          <option value="{{results.name}}">
+            {% endfor %}
+        </datalist>
+      </p>
+      <p><label for="id_pokemon_2_position">Pokemon position:</label> <select name="pokemon_2_position"
+          id="id_pokemon_2_position">
+          <option value="1">1</option>
 
-        <option value="2">2</option>
+          <option value="2">2</option>
 
-        <option value="3">3</option>
+          <option value="3">3</option>
 
-      </select></p>
+        </select></p>
 
-    <p>
-      <label for="id_pokemon_3">Pokemon 3:</label>
-      <input id="pokemon_3" name="pokemon_3" type="text" list="pokemons">
-      <datalist id="pokemons" name="pokemon_3">
-        {% for results in pokemons %}
-        <option value="{{results.name}}">
-          {% endfor %}
-      </datalist>
-    </p>
-    <p><label for="id_pokemon_3_position">Pokemon position:</label> <select name="pokemon_3_position"
-        id="id_pokemon_3_position">
-        <option value="1">1</option>
+      <p>
+        <label for="id_pokemon_3">Pokemon 3:</label>
+        <input id="pokemon_3" name="pokemon_3" type="text" list="pokemons">
+        <datalist id="pokemons" name="pokemon_3">
+          {% for results in pokemons %}
+          <option value="{{results.name}}">
+            {% endfor %}
+        </datalist>
+      </p>
+      <p><label for="id_pokemon_3_position">Pokemon position:</label> <select name="pokemon_3_position"
+          id="id_pokemon_3_position">
+          <option value="1">1</option>
 
-        <option value="2">2</option>
+          <option value="2">2</option>
 
-        <option value="3">3</option>
-      </select></p>
-    <input type="submit" value="Next" class="button_next">
-  </form>
-  <a class="button_next" role="button" onClick="javascript:history.go(-1)">
-    <p class="text_button">Back</p>
-  </a>
+          <option value="3">3</option>
+        </select></p>
+      <input type="submit" value="Next" class="button_next">
+    </form>
+    <a class="button_next" role="button" onClick="javascript:history.go(-1)">
+      <p class="text_button">Back</p>
+    </a>
+  {% endif %}
 </div>
 {% endblock %}
