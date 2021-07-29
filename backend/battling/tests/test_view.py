@@ -98,12 +98,14 @@ class CreateTeamViewTest(TestCaseUtils):
         super().setUp()
         self.opponent = baker.make("users.User")
         self.battle = baker.make("battling.Battle", creator=self.user, opponent=self.opponent)
-        self.team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
-        self.team = baker.make("battling.Team", battle=self.battle, trainer=self.opponent)
+        self.creator_team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
+        self.opponent_team = baker.make("battling.Team", battle=self.battle, trainer=self.opponent)
 
-        baker.make("pokemon.Pokemon", name="pidgey", attack=10, defense=10, hp=10)
-        baker.make("pokemon.Pokemon", name="pidgeotto", attack=10, defense=10, hp=10)
-        baker.make("pokemon.Pokemon", name="pidgeot", attack=10, defense=10, hp=10)
+        self.pokemon_list = [
+            baker.make("pokemon.Pokemon", name="pidgey", attack=10, defense=10, hp=10),
+            baker.make("pokemon.Pokemon", name="pidgeotto", attack=10, defense=10, hp=10),
+            baker.make("pokemon.Pokemon", name="pidgeot", attack=10, defense=10, hp=10),
+        ]
 
     def test_create_team(self):
         pokemon_data = {
@@ -115,10 +117,10 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
-        pokemon_team = PokemonTeam.objects.filter(team=self.team.id)
+        pokemon_team = PokemonTeam.objects.filter(team=self.opponent_team.id)
 
         pokemon_set = {
             pokemon_data["pokemon_1"],
@@ -139,10 +141,10 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
-        team_id = str(self.team.id)
+        team_id = str(self.opponent_team.id)
         self.assertRedirects(response, "/account/login/?next=/team/" + team_id + "/edit/")
 
     def test_does_not_create_team_with_wrong_pokemon_name(self):
@@ -155,7 +157,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
         self.assertEqual(
@@ -173,7 +175,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
         self.assertEqual(
@@ -191,7 +193,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
         self.assertEqual(
