@@ -6,6 +6,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from battling.models import Battle, PokemonTeam, Team
+from battling.tasks import run_battle_and_send_result_email
 from common.utils.tests import TestCaseUtils
 
 
@@ -199,4 +200,18 @@ class CreateTeamViewTest(TestCaseUtils):
         self.assertEqual(
             response.context_data["form"].errors["__all__"][0],
             "You can't choose the same Pokemon more than once.",
+        )
+
+    def test_run_battle_and_send_result_email(self):
+
+        for count, pokemon in enumerate(self.pokemon_list):
+            PokemonTeam.objects.create(team=self.creator_team, pokemon=pokemon, order=count + 1)
+
+        for count, pokemon in enumerate(self.pokemon_list):
+            PokemonTeam.objects.create(team=self.opponent_team, pokemon=pokemon, order=count + 1)
+
+        run_battle_and_send_result_email(self.battle.id)
+
+        self.assertEqual(
+            self.opponent, Battle.objects.get(creator=self.user, opponent=self.opponent).winner
         )
