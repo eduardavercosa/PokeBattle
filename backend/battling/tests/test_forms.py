@@ -120,7 +120,7 @@ class PokemonApiIntegrationTest(TestCaseUtils):
         self.team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
 
     @patch("pokemon.helpers.get_pokemon_from_api")
-    def test_if_pokemon_api_integration_returns_pokemon_data(self, mock_get_pokemon):
+    def test_if_mock_works_on_pokemon_api_integration(self, mock_get_pokemon):
         def side_effect_func(pokemon_name):
             fake_json = 1
             if pokemon_name == "pikachu":
