@@ -25,8 +25,8 @@ AUTH_PASSWORD_VALIDATORS = []  # allow easy passwords only on local
 # Celery
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
-CELERY_BROKER_URL = 'redis://:p473426053d946140da1c86201ec599075b4e2a713889ea68e543d70da24bd984@ec2-44-194-75-243.compute-1.amazonaws.com:28839'
-CELERY_RESULT_BACKEND = 'redis://:p473426053d946140da1c86201ec599075b4e2a713889ea68e543d70da24bd984@ec2-44-194-75-243.compute-1.amazonaws.com:28839'
+CELERY_BROKER_URL = 'amqp://broker:5672//'
+CELERY_RESULT_BACKEND = 'amqp://broker:5672//'
 
 # Email
 INSTALLED_APPS += ("naomi",)
