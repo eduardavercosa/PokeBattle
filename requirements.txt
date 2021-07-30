@@ -62,6 +62,8 @@ django==3.2
     #   django-model-utils
     #   django-render-block
     #   model-bakery
+djangorestframework>=3.12.4
+    # via -r requirements.in
 et-xmlfile==1.1.0
     # via openpyxl
 gunicorn==20.1.0
