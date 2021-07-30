@@ -14,7 +14,7 @@ billiard>=3.6.4.0
     # via celery
 brotlipy>=0.7.0
     # via -r requirements.in
-celery[redis]>=4.4.2
+celery[redis]==4.4.2
     # via -r requirements.in
 certifi>=2021.5.30
     # via
