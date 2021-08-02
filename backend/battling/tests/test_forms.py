@@ -118,7 +118,7 @@ class CreateTeamFormTest(TestCaseUtils):
         self.assertFalse(form.is_valid())
 
     @patch("pokemon.helpers.get_pokemon_from_api")
-    def test_if_mock_works_on_pokemon_api_integration(self, mock_get_pokemon):
+    def test_create_team_form_calls_get_pokemon_from_api(self, mock_get_pokemon):
         def side_effect_func(pokemon_name):
             fake_json = 1
             if pokemon_name == "pikachu":
