@@ -3,6 +3,8 @@ from .base import *  # noqa
 
 SECRET_KEY = "test"
 
+HOST = config("HOST", default="")
+
 DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": base_dir_join("db.sqlite3"),}
 }

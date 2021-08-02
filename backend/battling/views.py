@@ -49,6 +49,12 @@ class CreateTeamView(LoginRequiredMixin, UpdateView):
     form_class = CreateTeamForm
     template_name = "battling/create_team.html"
 
+    def get_initial(self):
+        obj_user = self.request.user.email
+        obj_trainer = self.get_object().trainer.email
+        self.initial = {"user": obj_user, "trainer": obj_trainer}
+        return self.initial
+
     def form_valid(self, form):
         battle = self.get_object().battle
         form.save()
