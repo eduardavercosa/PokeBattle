@@ -6,6 +6,7 @@ from django.urls import reverse
 from model_bakery import baker
 
 from battling.models import Battle, PokemonTeam, Team
+from battling.tasks import run_battle_and_send_result_email
 from common.utils.tests import TestCaseUtils
 
 
@@ -98,12 +99,14 @@ class CreateTeamViewTest(TestCaseUtils):
         super().setUp()
         self.opponent = baker.make("users.User")
         self.battle = baker.make("battling.Battle", creator=self.user, opponent=self.opponent)
-        self.team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
-        self.team = baker.make("battling.Team", battle=self.battle, trainer=self.opponent)
+        self.creator_team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
+        self.opponent_team = baker.make("battling.Team", battle=self.battle, trainer=self.opponent)
 
-        baker.make("pokemon.Pokemon", name="pidgey", attack=10, defense=10, hp=10)
-        baker.make("pokemon.Pokemon", name="pidgeotto", attack=10, defense=10, hp=10)
-        baker.make("pokemon.Pokemon", name="pidgeot", attack=10, defense=10, hp=10)
+        self.pokemon_list = [
+            baker.make("pokemon.Pokemon", name="pidgey", attack=10, defense=10, hp=10),
+            baker.make("pokemon.Pokemon", name="pidgeotto", attack=10, defense=10, hp=10),
+            baker.make("pokemon.Pokemon", name="pidgeot", attack=10, defense=10, hp=10),
+        ]
 
     def test_create_team(self):
         pokemon_data = {
@@ -115,10 +118,10 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
-        pokemon_team = PokemonTeam.objects.filter(team=self.team.id)
+        pokemon_team = PokemonTeam.objects.filter(team=self.opponent_team.id)
 
         pokemon_set = {
             pokemon_data["pokemon_1"],
@@ -139,10 +142,10 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
-        team_id = str(self.team.id)
+        team_id = str(self.opponent_team.id)
         self.assertRedirects(response, "/account/login/?next=/team/" + team_id + "/edit/")
 
     def test_does_not_create_team_with_wrong_pokemon_name(self):
@@ -155,7 +158,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
         self.assertEqual(
@@ -173,7 +176,7 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
         self.assertEqual(
@@ -191,10 +194,39 @@ class CreateTeamViewTest(TestCaseUtils):
             "pokemon_3_position": 3,
         }
         response = self.auth_client.post(
-            reverse("create_team", kwargs={"pk": self.team.id}), pokemon_data, follow=True
+            reverse("create_team", kwargs={"pk": self.opponent_team.id}), pokemon_data, follow=True
         )
 
         self.assertEqual(
             response.context_data["form"].errors["__all__"][0],
             "You can't choose the same Pokemon more than once.",
+        )
+
+    @patch("services.email.send_templated_mail")
+    def test_run_battle_and_send_result_email(self, email_mock):
+
+        for count, pokemon in enumerate(self.pokemon_list):
+            PokemonTeam.objects.create(team=self.creator_team, pokemon=pokemon, order=count + 1)
+
+        for count, pokemon in enumerate(self.pokemon_list):
+            PokemonTeam.objects.create(team=self.opponent_team, pokemon=pokemon, order=count + 1)
+
+        run_battle_and_send_result_email(self.battle.id)
+
+        self.assertEqual(
+            self.opponent, Battle.objects.get(creator=self.user, opponent=self.opponent).winner
+        )
+        battle = Battle.objects.get(creator=self.user, opponent=self.opponent)
+
+        email_mock.assert_called_with(
+            template_name="battle_result",
+            from_email=settings.FROM_EMAIL,
+            recipient_list=[battle.creator.email, battle.opponent.email],
+            context={
+                "battle_creator": battle.creator.email.split("@")[0],
+                "battle_opponent": battle.opponent.email.split("@")[0],
+                "battle_winner": battle.winner.email.split("@")[0],
+                "battle_id": battle.id,
+                "battle_details_url": settings.HOST + reverse("battle_detail", args=[battle.id]),
+            },
         )
