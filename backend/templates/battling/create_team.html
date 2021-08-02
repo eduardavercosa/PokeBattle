@@ -3,6 +3,9 @@
 {% block content %}
 <div class="teste">
   <p class="title_battle">Choose your pokemons!</p>
+  {% if user != team.trainer %}
+  <p>You can't acess this page</p>
+  {% else %}
   <div>
     {{ form.non_field_errors }}
   </div>
@@ -12,8 +15,8 @@
       <input id="pokemon_1" name="pokemon_1" type="text" list="pokemons">
       <datalist id="pokemons" name="pokemon_1">
         {% for results in pokemons %}
-        <option value="{{results.name}}">
-          {% endfor %}
+          <option value="{{results.name}}"></option>
+        {% endfor %}
       </datalist>
     </p>
     <p><label for="id_pokemon_1_position">Pokemon position:</label> <select name="pokemon_1_position"
@@ -31,8 +34,8 @@
       <input id="pokemon_2" name="pokemon_2" type="text" list="pokemons">
       <datalist id="pokemons" name="pokemon_2">
         {% for results in pokemons %}
-        <option value="{{results.name}}">
-          {% endfor %}
+          <option value="{{results.name}}"></option>
+        {% endfor %}
       </datalist>
     </p>
     <p><label for="id_pokemon_2_position">Pokemon position:</label> <select name="pokemon_2_position"
@@ -50,8 +53,8 @@
       <input id="pokemon_3" name="pokemon_3" type="text" list="pokemons">
       <datalist id="pokemons" name="pokemon_3">
         {% for results in pokemons %}
-        <option value="{{results.name}}">
-          {% endfor %}
+          <option value="{{results.name}}"></option>
+        {% endfor %}
       </datalist>
     </p>
     <p><label for="id_pokemon_3_position">Pokemon position:</label> <select name="pokemon_3_position"
@@ -67,5 +70,6 @@
   <a class="button_next" role="button" onClick="javascript:history.go(-1)">
     <p class="text_button">Back</p>
   </a>
+  {% endif %}
 </div>
 {% endblock %}
