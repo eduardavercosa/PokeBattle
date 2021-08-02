@@ -1,11 +1,10 @@
-from django.test import TestCase
-
 from model_bakery import baker
 
+from common.utils.tests import TestCaseUtils
 from pokemon.helpers import is_team_valid
 
 
-class PokemonSumTest(TestCase):
+class PokemonSumTest(TestCaseUtils):
     def setUp(self):
         self.pokemon_1 = baker.make(
             "pokemon.Pokemon",
