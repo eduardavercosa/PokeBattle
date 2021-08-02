@@ -8,6 +8,12 @@ from common.utils.tests import TestCaseUtils
 
 
 class CreateTeamFormTest(TestCaseUtils):
+    def setUp(self):
+        super().setUp()
+        self.opponent = baker.make("users.User")
+        self.battle = baker.make("battling.Battle", creator=self.user, opponent=self.opponent)
+        self.team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
+
     def test_create_team_form_with_valid_data(self):
         form = CreateTeamForm(
             data={
@@ -110,14 +116,6 @@ class CreateTeamFormTest(TestCaseUtils):
         )
 
         self.assertFalse(form.is_valid())
-
-
-class PokemonApiIntegrationTest(TestCaseUtils):
-    def setUp(self):
-        super().setUp()
-        self.opponent = baker.make("users.User")
-        self.battle = baker.make("battling.Battle", creator=self.user, opponent=self.opponent)
-        self.team = baker.make("battling.Team", battle=self.battle, trainer=self.user)
 
     @patch("pokemon.helpers.get_pokemon_from_api")
     def test_if_mock_works_on_pokemon_api_integration(self, mock_get_pokemon):
