@@ -6,7 +6,7 @@ from battling.api.serializers import BattleSerializer
 from battling.models import Battle
 
 
-class BattleList(generics.ListCreateAPIView):
+class BattleList(generics.ListAPIView):
 
     serializer_class = BattleSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
