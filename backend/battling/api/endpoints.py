@@ -6,7 +6,7 @@ from battling.api.serializers import BattleSerializer
 from battling.models import Battle
 
 
-class OngoingBattleList(generics.ListCreateAPIView):
+class BattleList(generics.ListCreateAPIView):
 
     serializer_class = BattleSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -14,17 +14,5 @@ class OngoingBattleList(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = Battle.objects.filter(
             Q(creator=self.request.user) | Q(opponent=self.request.user)
-        ).filter(status="OG")
-        return queryset
-
-
-class SettledBattleList(generics.ListCreateAPIView):
-
-    serializer_class = BattleSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
-    def get_queryset(self):
-        queryset = Battle.objects.filter(
-            Q(creator=self.request.user) | Q(opponent=self.request.user)
-        ).filter(status="ST")
+        ).order_by("-id")
         return queryset
