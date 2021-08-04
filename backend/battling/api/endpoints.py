@@ -2,7 +2,7 @@ from django.db.models import Q
 
 from rest_framework import generics, permissions
 
-from api.battles.serializers import BattleSerializer
+from battling.api.serializers import BattleSerializer
 from battling.models import Battle
 
 

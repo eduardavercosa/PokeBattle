@@ -1,6 +1,6 @@
 from django.urls import path
 
-from api.battles import endpoints
+from battling.api import endpoints
 
 
 urlpatterns = [
