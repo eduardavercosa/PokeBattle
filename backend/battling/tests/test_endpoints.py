@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from model_bakery import baker
 
+from battling.api.serializers import BattleSerializer
 from battling.models import Battle, Team
 from common.utils.tests import TestCaseUtils
 
@@ -105,3 +106,56 @@ class CreateBattleEndpointTest(TestCaseUtils):
                 "battle_delete_url": settings.HOST + reverse("delete_battle", args=[battle[0].id]),
             },
         )
+
+
+class BattleListEndpointTest(TestCaseUtils):
+    def setUp(self):
+        super().setUp()
+        self.user2 = baker.make("users.User")
+
+    # def test_user_cannot_acess_battle_list_logged_out(self):
+    #     self.auth_client.logout()
+    #     response = self.auth_client.get(reverse('battle-list'))
+    #     import ipdb; ipdb.set_trace()
+    #     self.assertEqual(response.status_code, 200)
+
+    def test_no_battles_in_list(self):
+        response = self.auth_client.get(reverse("battle-list"))
+        self.assertEqual(response.json(), [])
+
+    def test_one_battle_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user)
+        self.auth_client.get(reverse("battle-list"))
+        BattleSerializer([battle], many=True)
+
+        battles = Battle.objects.filter(creator=self.user)
+        assert len(battles) == 1
+
+    def test_a_few_battles_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user, _quantity=5)
+        self.auth_client.get(reverse("battle-list"))
+        BattleSerializer([battle], many=True)
+
+        battles = Battle.objects.filter(creator=self.user)
+        assert len(battles) == 5
+
+    def test_a_lot_battle_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user, _quantity=50)
+        self.auth_client.get(reverse("battle-list"))
+        BattleSerializer([battle], many=True)
+
+        battles = Battle.objects.filter(creator=self.user)
+        assert len(battles) == 50
+
+    def test_battle_with_multiple_requests_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user, _quantity=10)
+        battle2 = baker.make("battling.Battle", creator=self.user2, _quantity=9)
+        self.auth_client.get(reverse("battle-list"))
+        BattleSerializer([battle], many=True)
+        BattleSerializer([battle2], many=True)
+
+        battles = Battle.objects.filter(creator=self.user)
+        battles2 = Battle.objects.filter(creator=self.user2)
+
+        assert len(battles) == 10
+        assert len(battles2) == 9
