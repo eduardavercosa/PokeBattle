@@ -1,4 +1,12 @@
-from battling.models import Battle, PokemonTeam
+from battling.models import Battle, PokemonTeam, Team
+from services.email import send_battle_invite
+
+
+def set_up_battle_teams_and_send_invite_email(battle):
+    Team.objects.create(battle=battle, trainer=battle.creator)
+    opponent_team = Team.objects.create(battle=battle, trainer=battle.opponent)
+
+    send_battle_invite(battle, opponent_team.id)
 
 
 def battle_round(creator_pokemon, opponent_pokemon):
