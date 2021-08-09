@@ -31,6 +31,7 @@ class BattleSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)
     opponent = UserSerializer(read_only=True)
     teams = TeamSerializer(many=True, read_only=True)
+    status = serializers.CharField(read_only=True)
     winner = UserSerializer(read_only=True)
     creator_id = serializers.PrimaryKeyRelatedField(
         source="creator", queryset=User.objects.all(), required=False
@@ -42,7 +43,22 @@ class BattleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Battle
-        fields = ("id", "creator", "creator_id", "opponent", "opponent_id", "teams", "winner")
+        fields = (
+            "id",
+            "status",
+            "creator",
+            "creator_id",
+            "opponent",
+            "opponent_id",
+            "teams",
+            "winner",
+        )
+
+    def validate(self, attrs):
+        if attrs["creator"] == attrs["opponent"]:
+            raise serializers.ValidationError("ERROR: You can't challenge yourself.")
+
+        return attrs
 
     def create(self, validated_data):
         validated_data["creator"] = self.context.get("request").user
