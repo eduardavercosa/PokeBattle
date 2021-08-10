@@ -2,14 +2,7 @@ from rest_framework import serializers
 
 from battling.models import Battle, PokemonTeam, Team
 from battling.tasks import run_battle_and_send_result_email
-from pokemon.helpers import (
-    get_or_create_pokemon,
-    get_pokemon_from_api,
-    has_repeated_pokemon,
-    has_repeated_positions,
-    is_team_valid,
-    pokemon_in_api,
-)
+from pokemon.helpers import has_repeated_pokemon, is_team_valid
 from pokemon.models import Pokemon
 from services.battles import set_up_battle_teams_and_send_invite_email
 from users.models import User
@@ -82,99 +75,39 @@ class BattleSerializer(serializers.ModelSerializer):
 
 class BattleTeamSerializer(serializers.ModelSerializer):
     team = TeamSerializer(read_only=True)
-    pokemon_1 = serializers.CharField(style={"base_template": "textarea.html"}, required=False)
-    pokemon_1_position = serializers.IntegerField(min_value=1, max_value=3, write_only=True)
-    pokemon_2 = serializers.CharField(style={"base_template": "textarea.html"}, required=False)
-    pokemon_2_position = serializers.IntegerField(min_value=1, max_value=3, write_only=True)
-    pokemon_3 = serializers.CharField(style={"base_template": "textarea.html"}, required=False)
-    pokemon_3_position = serializers.IntegerField(min_value=1, max_value=3, write_only=True)
+    pokemons = PokemonSerializer(many=True, read_only=True)
+    pokemons_ids = serializers.PrimaryKeyRelatedField(
+        source="pokemons",
+        queryset=Pokemon.objects.all(),
+        many=True,
+    )
 
     class Meta:
         model = PokemonTeam
         fields = (
             "id",
             "team",
-            "pokemon_1",
-            "pokemon_2",
-            "pokemon_3",
-            "pokemon_1_position",
-            "pokemon_2_position",
-            "pokemon_3_position",
+            "pokemons",
+            "pokemons_ids",
         )
 
     def validate(self, attrs):
-        for field in [
-            "pokemon_1",
-            "pokemon_1_position",
-            "pokemon_2",
-            "pokemon_2_position",
-            "pokemon_3",
-            "pokemon_3_position",
-        ]:
-            if field not in attrs:
-                raise serializers.ValidationError("ERROR: All fields are required.")
+        pokemon_list = attrs["pokemons"]
+        if len(pokemon_list) != 3:
+            raise serializers.ValidationError("ERROR: All fields are required.")
 
-        pokemon_names = [
-            attrs["pokemon_1"],
-            attrs["pokemon_2"],
-            attrs["pokemon_3"],
-        ]
-        for pokemon in pokemon_names:
-            pokemon_exists_in_api = pokemon_in_api(pokemon)
-            if not pokemon_exists_in_api:
-                raise serializers.ValidationError("ERROR: Choose only existing Pokemon.")
-
-        team_has_repeated_pokemon = has_repeated_pokemon(pokemon_names)
+        team_has_repeated_pokemon = has_repeated_pokemon(pokemon_list)
         if team_has_repeated_pokemon:
             raise serializers.ValidationError("You can't choose the same Pokemon more than once.")
 
-        pokemon_position_list = [
-            (attrs["pokemon_1_position"]),
-            (attrs["pokemon_2_position"]),
-            (attrs["pokemon_3_position"]),
-        ]
-        is_any_position_repeated = has_repeated_positions(pokemon_position_list)
-
-        if is_any_position_repeated:
-            raise serializers.ValidationError("Each Pokemon must have a unique position.")
-
-        pokemon_data = [
-            get_pokemon_from_api(str(attrs["pokemon_1"])),
-            get_pokemon_from_api(str(attrs["pokemon_2"])),
-            get_pokemon_from_api(str(attrs["pokemon_3"])),
-        ]
-        is_pokemon_sum_valid = is_team_valid(pokemon_data)
+        is_pokemon_sum_valid = is_team_valid(pokemon_list)
 
         if not is_pokemon_sum_valid:
             raise serializers.ValidationError("ERROR: Your pokemons sum more than 600 points.")
 
-        pokemons = get_or_create_pokemon(pokemon_data)
-        attrs["pokemon_1"] = pokemons[0]
-        attrs["pokemon_2"] = pokemons[1]
-        attrs["pokemon_3"] = pokemons[2]
-
         return attrs
 
-    def update(self, instance, validated_data):
-        instance.pokemons.clear()
-        PokemonTeam.objects.create(
-            team=instance,
-            pokemon=validated_data["pokemon_1"],
-            order=validated_data["pokemon_1_position"],
-        )
-        PokemonTeam.objects.create(
-            team=instance,
-            pokemon=validated_data["pokemon_2"],
-            order=validated_data["pokemon_2_position"],
-        )
-        PokemonTeam.objects.create(
-            team=instance,
-            pokemon=validated_data["pokemon_3"],
-            order=validated_data["pokemon_3_position"],
-        )
-
-        battle = instance.battle
-
+    def _has_both_teams(self, battle):
         creator = (
             Team.objects.filter(battle=battle, trainer=battle.creator)
             .prefetch_related("pokemons")
@@ -189,7 +122,29 @@ class BattleTeamSerializer(serializers.ModelSerializer):
         )
         opponent_pokemons = opponent.pokemons.all()
 
-        if creator_pokemons and opponent_pokemons:
+        return creator_pokemons and opponent_pokemons
+
+    def update(self, instance, validated_data):
+        instance.pokemons.clear()
+        PokemonTeam.objects.create(
+            team=instance,
+            pokemon=validated_data["pokemons"][0],
+            order=1,
+        )
+        PokemonTeam.objects.create(
+            team=instance,
+            pokemon=validated_data["pokemons"][1],
+            order=2,
+        )
+        PokemonTeam.objects.create(
+            team=instance,
+            pokemon=validated_data["pokemons"][2],
+            order=3,
+        )
+
+        battle = instance.battle
+
+        if self._has_both_teams(battle):
             run_battle_and_send_result_email.delay(battle.id)
 
         return instance

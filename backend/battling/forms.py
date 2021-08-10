@@ -7,9 +7,9 @@ from battling.models import Battle, PokemonTeam, Team
 from pokemon.helpers import (
     get_or_create_pokemon,
     get_pokemon_from_api,
-    has_repeated_pokemon,
+    has_repeated_pokemon_old,
     has_repeated_positions,
-    is_team_valid,
+    is_team_valid_old,
     pokemon_in_api,
 )
 from services.email import send_battle_invite
@@ -147,7 +147,7 @@ class CreateTeamForm(forms.ModelForm):
             if not pokemon_exists_in_api:
                 raise forms.ValidationError("ERROR: Choose only existing Pokemon.")
 
-        team_has_repeated_pokemon = has_repeated_pokemon(pokemon_names)
+        team_has_repeated_pokemon = has_repeated_pokemon_old(pokemon_names)
         if team_has_repeated_pokemon:
             raise forms.ValidationError("You can't choose the same Pokemon more than once.")
 
@@ -166,7 +166,7 @@ class CreateTeamForm(forms.ModelForm):
             get_pokemon_from_api(str(cleaned_data["pokemon_2"])),
             get_pokemon_from_api(str(cleaned_data["pokemon_3"])),
         ]
-        is_pokemon_sum_valid = is_team_valid(pokemon_data)
+        is_pokemon_sum_valid = is_team_valid_old(pokemon_data)
 
         if not is_pokemon_sum_valid:
             raise forms.ValidationError("ERROR: Your pokemons sum more than 600 points.")
