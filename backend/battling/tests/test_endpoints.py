@@ -177,8 +177,7 @@ class BattleListEndpointTest(TestCaseUtils):
         assert len(battles) == 10
         assert len(battles2) == 9
 
-        expected_response = BattleSerializer(battle, many=True)
-        self.assertCountEqual(expected_response.data, response.json())
+        all_battles = battle + battle2
 
-        expected_response = BattleSerializer(battle2, many=True)
+        expected_response = BattleSerializer(all_battles, many=True)
         self.assertCountEqual(expected_response.data, response.json())
