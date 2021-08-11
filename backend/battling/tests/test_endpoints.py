@@ -181,3 +181,27 @@ class BattleListEndpointTest(TestCaseUtils):
 
         expected_response = BattleSerializer(all_battles, many=True)
         self.assertCountEqual(expected_response.data, response.json())
+
+
+class BattleDetailEndpointTest(TestCaseUtils):
+    def setUp(self):
+        super().setUp()
+        self.user2 = baker.make("users.User")
+
+    def test_user_cannot_acess_battle_detail_logged_out(self):
+        self.auth_client.logout()
+        response = self.client.get(reverse("battle-list"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_battle_not_found(self):
+        response = self.auth_client.get(reverse("battle-detail", kwargs={"pk": 1}))
+        self.assertEqual(response.status_code, 404)
+
+    def test_battle_detail_exists(self):
+        battle = baker.make("battling.Battle", creator=self.user, opponent=self.user2)
+        response = self.auth_client.get(reverse("battle-detail", kwargs={"pk": 1}))
+
+        self.assertEqual(response.status_code, 200)
+
+        expected_response = BattleSerializer([battle], many=True)
+        self.assertCountEqual(expected_response.data, [response.json()])
