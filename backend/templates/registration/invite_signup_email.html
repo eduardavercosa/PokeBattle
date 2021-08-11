@@ -3,7 +3,7 @@
 
 {% translate "Please go to the following page and register:" %}
 {% block reset_link %}
-{{ HOST }}{% url 'signup_confirm' uidb64=uid token=token %}
+{{ domain }}{% url 'signup_confirm' uidb64=uid token=token %}
 {% endblock %}
 
 {% endautoescape %}
