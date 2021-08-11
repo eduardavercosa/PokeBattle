@@ -23,9 +23,10 @@ class CreateBattleEndpointTest(TestCaseUtils):
             "opponent_id": self.opponent.id,
         }
 
-        self.auth_client.post(reverse("create-battle"), battle_data)
+        response = self.auth_client.post(reverse("create-battle"), battle_data)
         battle = Battle.objects.filter(creator=self.user, opponent=self.opponent)
 
+        self.assertEqual(response.status_code, 403)
         self.assertFalse(battle)
 
     def test_user_cannot_challenge_itself(self):
@@ -46,10 +47,11 @@ class CreateBattleEndpointTest(TestCaseUtils):
             "opponent_id": self.opponent.id,
         }
 
-        self.auth_client.post(reverse("create-battle"), battle_data)
+        response = self.auth_client.post(reverse("create-battle"), battle_data)
 
         battle = Battle.objects.filter(creator=self.user, opponent=self.opponent)
 
+        self.assertEqual(response.status_code, 201)
         self.assertTrue(battle)
         self.assertEqual(battle[0].creator.email, self.user.email)
         self.assertEqual(battle[0].opponent.email, self.opponent.email)
@@ -65,8 +67,11 @@ class CreateBattleEndpointTest(TestCaseUtils):
             "opponent_id": self.opponent2.id,
         }
 
-        self.auth_client.post(reverse("create-battle"), battle_data)
-        self.auth_client.post(reverse("create-battle"), battle2_data)
+        response = self.auth_client.post(reverse("create-battle"), battle_data)
+        self.assertEqual(response.status_code, 201)
+
+        response = self.auth_client.post(reverse("create-battle"), battle2_data)
+        self.assertEqual(response.status_code, 201)
 
         battle = Battle.objects.filter(creator=self.user)
         assert len(battle) == 2
@@ -113,49 +118,67 @@ class BattleListEndpointTest(TestCaseUtils):
         super().setUp()
         self.user2 = baker.make("users.User")
 
-    # def test_user_cannot_acess_battle_list_logged_out(self):
-    #     self.auth_client.logout()
-    #     response = self.auth_client.get(reverse('battle-list'))
-    #     import ipdb; ipdb.set_trace()
-    #     self.assertEqual(response.status_code, 200)
+    def test_user_cannot_acess_battle_list_logged_out(self):
+        self.auth_client.logout()
+        response = self.client.get(reverse("battle-list"))
+        self.assertEqual(response.status_code, 403)
 
     def test_no_battles_in_list(self):
         response = self.auth_client.get(reverse("battle-list"))
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), [])
 
     def test_one_battle_in_list(self):
-        battle = baker.make("battling.Battle", creator=self.user)
-        self.auth_client.get(reverse("battle-list"))
-        BattleSerializer([battle], many=True)
+        battle = baker.make("battling.Battle", creator=self.user, opponent=self.user2)
+        response = self.auth_client.get(reverse("battle-list"))
 
-        battles = Battle.objects.filter(creator=self.user)
+        self.assertEqual(response.status_code, 200)
+
+        battles = Battle.objects.filter(creator=self.user, opponent=self.user2)
         assert len(battles) == 1
 
-    def test_a_few_battles_in_list(self):
-        battle = baker.make("battling.Battle", creator=self.user, _quantity=5)
-        self.auth_client.get(reverse("battle-list"))
-        BattleSerializer([battle], many=True)
+        expected_response = BattleSerializer([battle], many=True)
+        self.assertCountEqual(expected_response.data, response.json())
 
-        battles = Battle.objects.filter(creator=self.user)
+    def test_a_few_battles_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user, opponent=self.user2, _quantity=5)
+        response = self.auth_client.get(reverse("battle-list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        battles = Battle.objects.filter(creator=self.user, opponent=self.user2)
         assert len(battles) == 5
 
-    def test_a_lot_battle_in_list(self):
-        battle = baker.make("battling.Battle", creator=self.user, _quantity=50)
-        self.auth_client.get(reverse("battle-list"))
-        BattleSerializer([battle], many=True)
+        expected_response = BattleSerializer(battle, many=True)
+        self.assertCountEqual(expected_response.data, response.json())
 
-        battles = Battle.objects.filter(creator=self.user)
+    def test_a_lot_battle_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user, opponent=self.user2, _quantity=50)
+        response = self.auth_client.get(reverse("battle-list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        battles = Battle.objects.filter(creator=self.user, opponent=self.user2)
         assert len(battles) == 50
 
-    def test_battle_with_multiple_requests_in_list(self):
-        battle = baker.make("battling.Battle", creator=self.user, _quantity=10)
-        battle2 = baker.make("battling.Battle", creator=self.user2, _quantity=9)
-        self.auth_client.get(reverse("battle-list"))
-        BattleSerializer([battle], many=True)
-        BattleSerializer([battle2], many=True)
+        expected_response = BattleSerializer(battle, many=True)
+        self.assertCountEqual(expected_response.data, response.json())
 
-        battles = Battle.objects.filter(creator=self.user)
-        battles2 = Battle.objects.filter(creator=self.user2)
+    def test_battle_with_multiple_requests_in_list(self):
+        battle = baker.make("battling.Battle", creator=self.user, opponent=self.user2, _quantity=10)
+        battle2 = baker.make("battling.Battle", creator=self.user2, opponent=self.user, _quantity=9)
+        response = self.auth_client.get(reverse("battle-list"))
+
+        self.assertEqual(response.status_code, 200)
+
+        battles = Battle.objects.filter(creator=self.user, opponent=self.user2)
+        battles2 = Battle.objects.filter(creator=self.user2, opponent=self.user)
 
         assert len(battles) == 10
         assert len(battles2) == 9
+
+        expected_response = BattleSerializer(battle, many=True)
+        self.assertCountEqual(expected_response.data, response.json())
+
+        expected_response = BattleSerializer(battle2, many=True)
+        self.assertCountEqual(expected_response.data, response.json())
