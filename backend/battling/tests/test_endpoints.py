@@ -40,10 +40,9 @@ class CreateTeamEndpointTest(TestCaseUtils):
         )
 
         pokemon_team = PokemonTeam.objects.filter(team=self.creator_team.id)
+        pokemon_ids = [pk.pokemon.id for pk in pokemon_team]
 
-        pokemon_set = {pk for pk in pokemon_data["pokemons_ids"]}
-
-        self.assertEqual(pokemon_set, {pk.pokemon.id for pk in pokemon_team})
+        self.assertEqual(pokemon_data["pokemons_ids"], pokemon_ids)
 
     def test_does_not_create_team_with_user_not_logged(self):
         self.auth_client.logout()
