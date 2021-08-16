@@ -207,7 +207,7 @@ class BattleDetailEndpointTest(TestCaseUtils):
         expected_response = BattleSerializer([battle], many=True)
         self.assertCountEqual(expected_response.data, [response.json()])
 
-        
+
 class CreateTeamEndpointTest(TestCaseUtils):
     def setUp(self):
         super().setUp()
