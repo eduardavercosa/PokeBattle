@@ -68,13 +68,12 @@ class CreateBattleForm(forms.ModelForm):
             invite_form = PasswordResetForm(data={"email": battle.opponent.email})
             invite_form.is_valid()
             invite_form.save(
-                self,
+                domain_override=settings.HOST,
                 subject_template_name="registration/invite_signup_subject.txt",
                 email_template_name="registration/invite_signup_email.html",
                 from_email=settings.FROM_EMAIL,
                 request=None,
                 html_email_template_name=None,
-                extra_email_context={"HOST": settings.HOST},
             )
         return instance
 
