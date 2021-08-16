@@ -8,7 +8,7 @@ from battling.models import Battle
 
 class BattleList(generics.ListCreateAPIView):
     serializer_class = BattleSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = Battle.objects.filter(
@@ -19,7 +19,7 @@ class BattleList(generics.ListCreateAPIView):
 
 class BattleDetail(generics.RetrieveAPIView):
     serializer_class = BattleSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = Battle.objects.filter(
@@ -30,4 +30,4 @@ class BattleDetail(generics.RetrieveAPIView):
 
 class CreateBattle(generics.CreateAPIView):
     serializer_class = BattleSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
