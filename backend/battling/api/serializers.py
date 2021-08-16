@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from battling.models import Battle, PokemonTeam, Team
 from battling.tasks import run_battle_and_send_result_email
-from pokemon.helpers import has_repeated_pokemon, is_team_valid
+from pokemon.helpers import _has_both_teams, has_repeated_pokemon, is_team_valid
 from pokemon.models import Pokemon
 from services.battles import set_up_battle_teams_and_send_invite_email
 from users.models import User
@@ -28,20 +28,10 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = ("id", "battle", "trainer")
 
 
-class PokemonTeamSerializer(serializers.ModelSerializer):
-    teams = TeamSerializer()
-    pokemon = PokemonSerializer(many=True)
-
-    class Meta:
-        model = PokemonTeam
-        fields = ("id", "teams", "pokemon", "order")
-
-
 class BattleSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)
     opponent = UserSerializer(read_only=True)
     teams = TeamSerializer(many=True, read_only=True)
-    pokemon_teams = PokemonTeamSerializer(many=True, required=False)
     status = serializers.CharField(read_only=True)
     winner = UserSerializer(read_only=True)
     creator_id = serializers.PrimaryKeyRelatedField(
@@ -81,9 +71,7 @@ class BattleSerializer(serializers.ModelSerializer):
         return instance
 
 
-class BattleTeamSerializer(serializers.ModelSerializer):
-    team = TeamSerializer(read_only=True)
-    pokemons = PokemonSerializer(many=True, read_only=True)
+class CreateTeamSerializer(serializers.ModelSerializer):
     pokemons_ids = serializers.PrimaryKeyRelatedField(
         source="pokemons",
         queryset=Pokemon.objects.all(),
@@ -94,8 +82,6 @@ class BattleTeamSerializer(serializers.ModelSerializer):
         model = PokemonTeam
         fields = (
             "id",
-            "team",
-            "pokemons",
             "pokemons_ids",
         )
 
@@ -114,23 +100,6 @@ class BattleTeamSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("ERROR: Your pokemons sum more than 600 points.")
 
         return attrs
-
-    def _has_both_teams(self, battle):
-        creator = (
-            Team.objects.filter(battle=battle, trainer=battle.creator)
-            .prefetch_related("pokemons")
-            .get()
-        )
-        creator_pokemons = creator.pokemons.all()
-
-        opponent = (
-            Team.objects.filter(battle=battle, trainer=battle.opponent)
-            .prefetch_related("pokemons")
-            .get()
-        )
-        opponent_pokemons = opponent.pokemons.all()
-
-        return creator_pokemons and opponent_pokemons
 
     def update(self, instance, validated_data):
         instance.pokemons.clear()
@@ -152,7 +121,7 @@ class BattleTeamSerializer(serializers.ModelSerializer):
 
         battle = instance.battle
 
-        if self._has_both_teams(battle):
+        if _has_both_teams(battle):
             run_battle_and_send_result_email.delay(battle.id)
 
         return instance

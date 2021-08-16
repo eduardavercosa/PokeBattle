@@ -2,7 +2,7 @@ from django.db.models import Q
 
 from rest_framework import generics, permissions
 
-from battling.api.serializers import BattleSerializer, BattleTeamSerializer
+from battling.api.serializers import BattleSerializer, CreateTeamSerializer
 from battling.models import Battle, Team
 
 
@@ -30,12 +30,12 @@ class BattleDetail(generics.RetrieveAPIView):
 
 class CreateBattle(generics.CreateAPIView):
     serializer_class = BattleSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class CreateTeam(generics.UpdateAPIView):
-    serializer_class = BattleTeamSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    serializer_class = CreateTeamSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = Team.objects.filter(trainer=self.request.user)
