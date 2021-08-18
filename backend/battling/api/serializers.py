@@ -52,7 +52,6 @@ class BattleSerializer(serializers.ModelSerializer):
             "opponent",
             "opponent_id",
             "teams",
-            "pokemon_teams",
             "status",
             "winner",
         )
