@@ -22,10 +22,11 @@ class PokemonSerializer(serializers.ModelSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
     trainer = UserSerializer()
+    pokemons = PokemonSerializer(many=True)
 
     class Meta:
         model = Team
-        fields = ("id", "battle", "trainer")
+        fields = ("id", "battle", "trainer", "pokemons")
 
 
 class BattleSerializer(serializers.ModelSerializer):
