@@ -1,12 +1,14 @@
 import { get, map } from 'lodash';
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { apiUrls, getFromApi } from 'utils/api';
 
 function BattleDetail() {
+  const { id } = useParams();
   const [battle, setBattle] = useState();
   const getTeamData = async () => {
-    const data = await getFromApi(apiUrls.battleDetail(34));
+    const data = await getFromApi(apiUrls.battleDetail(id));
     setBattle(data);
     return data;
   };
