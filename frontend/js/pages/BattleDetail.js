@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import { apiUrls, getFromApi } from 'utils/api';
 
-function Home() {
+function BattleDetail() {
   const [battle, setBattle] = useState();
   const getTeamData = async () => {
     const data = await getFromApi(apiUrls.battleDetail(34));
@@ -73,4 +73,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default BattleDetail;
