@@ -3,12 +3,14 @@ import { hot } from 'react-hot-loader/root';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import BattleDetail from './pages/BattleDetail';
+import BattleList from './pages/BattleList';
 import SentryBoundary from './utils/SentryBoundary';
 
 const App = () => (
   <SentryBoundary>
     <Router>
       <Switch>
+        <Route component={BattleList} path="/react/battles/list" />
         <Route component={BattleDetail} path="/react/battle/:id/detail" />
       </Switch>
     </Router>

@@ -4,6 +4,7 @@ const baseUrl = window.location.host;
 
 const apiUrls = {
   battleDetail: (id) => `api/battles/${id}`,
+  battleList: `api/battles/list`,
 };
 
 const getFromApi = (urlApi) => {
