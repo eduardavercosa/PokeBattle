@@ -22,7 +22,7 @@ function BattleDetail() {
   const { id } = useParams();
   const [battle, setBattle] = useState();
   const currentUrl = window.location.host;
-  const url = `http://${currentUrl}/battle/list/`;
+  const url = `http://${currentUrl}/react/battles/list`;
 
   const getTeamData = async () => {
     const data = await getFromApi(apiUrls.battleDetail(id));
