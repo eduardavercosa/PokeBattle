@@ -1,4 +1,5 @@
 from unittest.mock import patch
+
 from model_bakery import baker
 
 from battling.forms import CreateTeamForm

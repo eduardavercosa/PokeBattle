@@ -1,5 +1,6 @@
 import requests
 
+from battling.models import Team
 from pokemon.constants import POKE_API_URL
 from pokemon.models import Pokemon
 
@@ -45,14 +46,6 @@ def pokemon_in_api(poke_name):
     return bool(response)
 
 
-def is_team_valid(pokemon_data):
-    points = 0
-    for pokemon in pokemon_data:
-        points += pokemon["attack"] + pokemon["defense"] + pokemon["hp"]
-
-    return points <= 600
-
-
 def get_or_create_pokemon(pokemon_data):
     pokemons = []
     for pokemon in pokemon_data:
@@ -68,9 +61,36 @@ def has_repeated_positions(pokemon_position_list):
     return len(pokemon_position_list) != len(set(pokemon_position_list))
 
 
-def has_repeated_pokemon(pokemon_names):
-    for pokemon in pokemon_names:
-        pokemon_count = pokemon_names.count(pokemon)
-        if pokemon_count > 1:
-            return True
-    return False
+def has_repeated_pokemon(pokemons_list):
+    pokemon_set = set(pokemons_list)
+
+    return len(pokemon_set) != len(pokemons_list)
+
+
+def is_team_valid(pokemon_data):
+    points = 0
+    for pokemon in pokemon_data:
+        try:
+            points += pokemon["attack"] + pokemon["defense"] + pokemon["hp"]
+        except TypeError:
+            points += pokemon.attack + pokemon.defense + pokemon.hp
+
+    return points <= 600
+
+
+def _has_both_teams(battle):
+    creator = (
+        Team.objects.filter(battle=battle, trainer=battle.creator)
+        .prefetch_related("pokemons")
+        .get()
+    )
+    creator_pokemons = creator.pokemons.all()
+
+    opponent = (
+        Team.objects.filter(battle=battle, trainer=battle.opponent)
+        .prefetch_related("pokemons")
+        .get()
+    )
+    opponent_pokemons = opponent.pokemons.all()
+
+    return creator_pokemons and opponent_pokemons

@@ -1,6 +1,8 @@
 from rest_framework import serializers
 
-from battling.models import Battle, Team
+from battling.models import Battle, PokemonTeam, Team
+from battling.tasks import run_battle_and_send_result_email
+from pokemon.helpers import _has_both_teams, has_repeated_pokemon, is_team_valid
 from pokemon.models import Pokemon
 from services.battles import set_up_battle_teams_and_send_invite_email
 from users.models import User
@@ -51,6 +53,7 @@ class BattleSerializer(serializers.ModelSerializer):
             "opponent",
             "opponent_id",
             "teams",
+            "status",
             "winner",
         )
 
@@ -65,4 +68,60 @@ class BattleSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
 
         set_up_battle_teams_and_send_invite_email(instance)
+        return instance
+
+
+class CreateTeamSerializer(serializers.ModelSerializer):
+    pokemons_ids = serializers.PrimaryKeyRelatedField(
+        source="pokemons",
+        queryset=Pokemon.objects.all(),
+        many=True,
+    )
+
+    class Meta:
+        model = PokemonTeam
+        fields = (
+            "id",
+            "pokemons_ids",
+        )
+
+    def validate(self, attrs):
+        pokemon_list = attrs["pokemons"]
+        if len(pokemon_list) != 3:
+            raise serializers.ValidationError("ERROR: All fields are required.")
+
+        team_has_repeated_pokemon = has_repeated_pokemon(pokemon_list)
+        if team_has_repeated_pokemon:
+            raise serializers.ValidationError("You can't choose the same Pokemon more than once.")
+
+        is_pokemon_sum_valid = is_team_valid(pokemon_list)
+
+        if not is_pokemon_sum_valid:
+            raise serializers.ValidationError("ERROR: Your pokemons sum more than 600 points.")
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        instance.pokemons.clear()
+        PokemonTeam.objects.create(
+            team=instance,
+            pokemon=validated_data["pokemons"][0],
+            order=1,
+        )
+        PokemonTeam.objects.create(
+            team=instance,
+            pokemon=validated_data["pokemons"][1],
+            order=2,
+        )
+        PokemonTeam.objects.create(
+            team=instance,
+            pokemon=validated_data["pokemons"][2],
+            order=3,
+        )
+
+        battle = instance.battle
+
+        if _has_both_teams(battle):
+            run_battle_and_send_result_email.delay(battle.id)
+
         return instance

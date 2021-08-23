@@ -32,6 +32,9 @@ class Team(models.Model):
     trainer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="teams")
     pokemons = models.ManyToManyField(Pokemon, related_name="teams", through="PokemonTeam")
 
+    class Meta:
+        unique_together = [("battle", "trainer")]
+
 
 class PokemonTeam(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="teams")
