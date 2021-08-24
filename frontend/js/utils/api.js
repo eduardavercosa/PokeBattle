@@ -1,12 +1,12 @@
 import axios from 'axios';
 
+import Urls from './urls';
+
 const baseUrl = window.location.host;
 
-const apiUrls = {
-  battleDetail: (id) => `api/battles/${id}`,
-};
+const urlApi = Urls['battle-detail'](':id');
 
-const getFromApi = (urlApi) => {
+const getFromApi = () => {
   const url = `http://${baseUrl}/${urlApi}`;
   const response = axios.get(url).then((res) => {
     return res.data;
@@ -14,4 +14,4 @@ const getFromApi = (urlApi) => {
   return response;
 };
 
-export { apiUrls, getFromApi };
+export { getFromApi };
