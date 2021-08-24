@@ -48,53 +48,57 @@ function BattleDetail() {
         <p>{battle.creator.email} team:</p>
         <div>
           <table>
-            <tr>
-              <th>Pokemon</th>
-              <th>name</th>
-              <th>attack</th>
-              <th>defense</th>
-              <th>hp</th>
-            </tr>
+            <tbody>
+              <tr>
+                <th>Pokemon</th>
+                <th>name</th>
+                <th>attack</th>
+                <th>defense</th>
+                <th>hp</th>
+              </tr>
 
-            {map(battle.teams[0].pokemons, (pokemon) => {
-              return (
-                <tr>
-                  <th>
-                    <img alt="pokemon img" height="90px" src={get(pokemon, 'img_url')} />
-                  </th>
-                  <th> {pokemon.name}</th>
-                  <th> {pokemon.attack}</th>
-                  <th> {pokemon.defense}</th>
-                  <th> {pokemon.hp}</th>
-                </tr>
-              );
-            })}
+              {map(battle.teams[0].pokemons, (pokemon) => {
+                return (
+                  <tr key={pokemon.name}>
+                    <th>
+                      <img alt="pokemon img" height="90px" src={get(pokemon, 'img_url')} />
+                    </th>
+                    <th> {pokemon.name}</th>
+                    <th> {pokemon.attack}</th>
+                    <th> {pokemon.defense}</th>
+                    <th> {pokemon.hp}</th>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
         </div>
         <p>{battle.opponent.email} team:</p>
         <div>
           <table>
-            <tr>
-              <th>Pokemon</th>
-              <th>name</th>
-              <th>attack</th>
-              <th>defense</th>
-              <th>hp</th>
-            </tr>
+            <tbody>
+              <tr>
+                <th>Pokemon</th>
+                <th>name</th>
+                <th>attack</th>
+                <th>defense</th>
+                <th>hp</th>
+              </tr>
 
-            {map(battle.teams[1].pokemons, (pokemon) => {
-              return (
-                <tr>
-                  <th>
-                    <img alt="pokemon img" height="90px" src={get(pokemon, 'img_url')} />
-                  </th>
-                  <th> {pokemon.name}</th>
-                  <th> {pokemon.attack}</th>
-                  <th> {pokemon.defense}</th>
-                  <th> {pokemon.hp}</th>
-                </tr>
-              );
-            })}
+              {map(battle.teams[1].pokemons, (pokemon) => {
+                return (
+                  <tr key={pokemon.name}>
+                    <th>
+                      <img alt="pokemon img" height="90px" src={get(pokemon, 'img_url')} />
+                    </th>
+                    <th> {pokemon.name}</th>
+                    <th> {pokemon.attack}</th>
+                    <th> {pokemon.defense}</th>
+                    <th> {pokemon.hp}</th>
+                  </tr>
+                );
+              })}
+            </tbody>
           </table>
         </div>
       </div>
