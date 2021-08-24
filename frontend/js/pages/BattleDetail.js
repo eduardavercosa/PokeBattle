@@ -1,5 +1,5 @@
 import { get, map } from 'lodash';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -34,7 +34,9 @@ function BattleDetail() {
     setBattle(data);
     return data;
   };
-  getTeamData();
+  useEffect(() => {
+    getTeamData();
+  }, []);
   if (!battle) {
     return `The battle you're looking for doesn't exist`;
   }
