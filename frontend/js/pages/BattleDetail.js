@@ -6,16 +6,18 @@ import styled from 'styled-components';
 import { apiUrls, getFromApi } from 'utils/api';
 
 const Title = styled.h1`
+  font-size: 3em;
+  color: white;
+`;
+
+const Text = styled.h1`
   font-size: 1.5em;
-  text-align: center;
   color: white;
 `;
 
 const Wrapper = styled.section`
   padding: 4em;
   background: linear-gradient(to right, rgb(197, 230, 236), rgb(239, 187, 230));
-  text-align: center;
-  align-items: center;
 `;
 
 function BattleDetail() {
@@ -35,10 +37,9 @@ function BattleDetail() {
   }
   return (
     <Wrapper>
-      <Title>Welcome to Poke Battle!</Title>
-      <Title>Choose your pokemons and fight!</Title>
+      <Title>Battle result!</Title>
       <div>
-        <p>{battle.winner.email} won!</p>
+        <Text>The winner is {battle.winner.email}!</Text>
         <p>{battle.creator.email} team:</p>
         <div>
           <table>

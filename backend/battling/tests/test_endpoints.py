@@ -11,7 +11,7 @@ from battling.tasks import run_battle_and_send_result_email
 from common.utils.tests import TestCaseUtils
 
 
-class LoggedUserEndpointTest(TestCaseUtils):
+class CurrentUserEndpointTest(TestCaseUtils):
     def test_endpoint_returns_current_user(self):
         response = self.auth_client.get(reverse("logged-user"))
         self.assertEqual(response.json()["email"], self.user.email)

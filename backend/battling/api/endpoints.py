@@ -8,7 +8,7 @@ from battling.api.serializers import BattleSerializer, CreateTeamSerializer, Use
 from battling.models import Battle, Team
 
 
-class LoggedUser(APIView):
+class CurrentUserEndpoint(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
