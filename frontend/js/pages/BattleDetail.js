@@ -3,7 +3,9 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { apiUrls, getFromApi } from 'utils/api';
+import { getFromApi } from 'utils/api';
+
+import Urls from '../utils/urls';
 
 const Title = styled.h1`
   font-size: 3em;
@@ -22,12 +24,13 @@ const Wrapper = styled.section`
 
 function BattleDetail() {
   const { id } = useParams();
+  const apiUrls = Urls['battle-detail'](id);
   const [battle, setBattle] = useState();
   const currentUrl = window.location.host;
   const url = `http://${currentUrl}/battle/list/`;
 
   const getTeamData = async () => {
-    const data = await getFromApi(apiUrls.battleDetail(id));
+    const data = await getFromApi(apiUrls);
     setBattle(data);
     return data;
   };
