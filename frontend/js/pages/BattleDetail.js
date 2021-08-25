@@ -26,19 +26,37 @@ function BattleDetail() {
   const { id } = useParams();
   const apiUrls = Urls['battle-detail'](id);
   const [battle, setBattle] = useState();
-  const currentUrl = window.location.host;
-  const url = `http://${currentUrl}/battle/list/`;
+  const url = Urls['battle-list']();
 
   const getTeamData = async () => {
     const data = await getFromApi(apiUrls);
     setBattle(data);
     return data;
   };
+
   useEffect(() => {
     getTeamData();
   }, []);
   if (!battle) {
-    return `The battle you're looking for doesn't exist`;
+    return (
+      <Wrapper>
+        <Title>The battle you are looking for does not exist.</Title>
+      </Wrapper>
+    );
+  }
+  if (!battle.winner || !battle.teams) {
+    return (
+      <Wrapper>
+        <Title>Battle result!</Title>
+        <div>
+          <Text>The battle is not over yet!</Text>
+          <p>{battle.creator.email} team:</p>
+          <div>
+            <a href={url}>Back</a>
+          </div>
+        </div>
+      </Wrapper>
+    );
   }
   return (
     <Wrapper>
