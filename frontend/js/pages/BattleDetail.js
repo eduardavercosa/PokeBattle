@@ -1,11 +1,14 @@
-import { get, map } from 'lodash';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { getFromApi } from 'utils/api';
+import TeamCard from 'components/TeamCard';
+import { createTeamUrl, getBattleListPage } from 'utils/api';
 
-import Urls from '../utils/urls';
+import { fetchBattle } from '../actions/setBattle';
+import { setCurrentUser } from '../actions/setUser';
+import { showTeams } from '../utils/battle-detail';
 
 const Title = styled.h1`
   font-size: 3em;
@@ -22,21 +25,14 @@ const Wrapper = styled.section`
   background: linear-gradient(to right, rgb(197, 230, 236), rgb(239, 187, 230));
 `;
 
-function BattleDetail() {
+function BattleDetail(props) {
   const { id } = useParams();
-  const apiUrls = Urls['battle-detail'](id);
-  const [battle, setBattle] = useState();
-  const url = Urls['battle-list']();
-
-  const getTeamData = async () => {
-    const data = await getFromApi(apiUrls);
-    setBattle(data);
-    return data;
-  };
-
   useEffect(() => {
-    getTeamData();
+    props.setCurrentUser();
+    props.fetchBattle(id);
   }, []);
+  const { battle } = props.battle;
+  const { user } = props.user;
   if (!battle) {
     return (
       <Wrapper>
@@ -44,85 +40,64 @@ function BattleDetail() {
       </Wrapper>
     );
   }
-  if (!battle.winner || !battle.teams) {
-    return (
-      <Wrapper>
-        <Title>Battle result!</Title>
-        <div>
-          <Text>The battle is not over yet!</Text>
-          <p>{battle.creator.email} team:</p>
-          <div>
-            <a href={url}>Back</a>
-          </div>
-        </div>
-      </Wrapper>
-    );
-  }
+  const teams = showTeams(battle, user);
+  const currentUserTeam = teams[0];
+  const otherUserTeam = teams[1];
+
   return (
     <Wrapper>
-      <Title>Battle result!</Title>
-      <div>
-        <Text>The winner is {battle.winner.email}!</Text>
-        <p>{battle.creator.email} team:</p>
+      {user.email !== battle.creator.email && user !== battle.opponent.email ? (
+        <Text>You do not have acess to this battle</Text>
+      ) : (
         <div>
-          <table>
-            <tbody>
-              <tr>
-                <th>Pokemon</th>
-                <th>name</th>
-                <th>attack</th>
-                <th>defense</th>
-                <th>hp</th>
-              </tr>
-
-              {map(battle.teams[0].pokemons, (pokemon) => {
-                return (
-                  <tr key={pokemon.name}>
-                    <th>
-                      <img alt="pokemon img" height="90px" src={get(pokemon, 'img_url')} />
-                    </th>
-                    <th> {pokemon.name}</th>
-                    <th> {pokemon.attack}</th>
-                    <th> {pokemon.defense}</th>
-                    <th> {pokemon.hp}</th>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <Title>Battle result!</Title>
+          {battle.winner ? (
+            <Text>The winner is {battle.winner ? battle.winner.email : ''}</Text>
+          ) : (
+            ''
+          )}
+          <div>
+            <div>
+              <p>Your team:</p>
+              {currentUserTeam.pokemons.length === 0 ? (
+                <div>
+                  <p>You have not chosen your pokemon yet.</p>
+                  <a href={createTeamUrl(currentUserTeam.id)} role="button">
+                    Edit your team
+                  </a>
+                </div>
+              ) : (
+                <TeamCard pokemons={currentUserTeam.pokemons} />
+              )}
+            </div>
+            <div>
+              <p>Your opponent team:</p>
+              {battle.winner ? (
+                <TeamCard pokemons={otherUserTeam.pokemons} />
+              ) : (
+                <p>The battle is not over yet.</p>
+              )}
+            </div>
+          </div>
+          <a href={createTeamUrl(getBattleListPage)} role="button">
+            Back
+          </a>
         </div>
-        <p>{battle.opponent.email} team:</p>
-        <div>
-          <table>
-            <tbody>
-              <tr>
-                <th>Pokemon</th>
-                <th>name</th>
-                <th>attack</th>
-                <th>defense</th>
-                <th>hp</th>
-              </tr>
-
-              {map(battle.teams[1].pokemons, (pokemon) => {
-                return (
-                  <tr key={pokemon.name}>
-                    <th>
-                      <img alt="pokemon img" height="90px" src={get(pokemon, 'img_url')} />
-                    </th>
-                    <th> {pokemon.name}</th>
-                    <th> {pokemon.attack}</th>
-                    <th> {pokemon.defense}</th>
-                    <th> {pokemon.hp}</th>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <a href={url}>Back</a>
+      )}
     </Wrapper>
   );
 }
 
-export default BattleDetail;
+const mapStateToProps = (store) => ({
+  battle: store.battleState,
+  user: store.userState,
+});
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setCurrentUser: () => dispatch(setCurrentUser()),
+    fetchBattle: (battle) => dispatch(fetchBattle(battle)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BattleDetail);
