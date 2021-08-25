@@ -9,4 +9,9 @@ urlpatterns = [
         TemplateView.as_view(template_name="react/spa_template.html"),
         name="spa_template",
     ),
+    path(
+        "battle/list",
+        TemplateView.as_view(template_name="react/spa_template.html"),
+        name="spa_template",
+    ),
 ]
