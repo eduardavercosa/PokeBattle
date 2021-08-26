@@ -24,12 +24,10 @@ const Wrapper = styled.section`
 
 function BattleDetail() {
   const { id } = useParams();
-  const apiUrls = Urls['battle-detail'](id);
   const [battle, setBattle] = useState();
-  const url = Urls['battle-list']();
 
   const getTeamData = async () => {
-    const data = await getFromApi(apiUrls);
+    const data = await getFromApi(Urls['battle-detail'](id));
     setBattle(data);
     return data;
   };
@@ -52,7 +50,7 @@ function BattleDetail() {
           <Text>The battle is not over yet!</Text>
           <p>{battle.creator.email} team:</p>
           <div>
-            <a href={url}>Back</a>
+            <a href={Urls['battle-list']()}>Back</a>
           </div>
         </div>
       </Wrapper>
@@ -120,7 +118,7 @@ function BattleDetail() {
           </table>
         </div>
       </div>
-      <a href={url}>Back</a>
+      <a href={Urls['battle-list']()}>Back</a>
     </Wrapper>
   );
 }
