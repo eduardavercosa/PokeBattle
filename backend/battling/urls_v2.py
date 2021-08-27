@@ -7,6 +7,6 @@ urlpatterns = [
     path(
         "battle/<int:pk>/detail",
         TemplateView.as_view(template_name="react/spa_template.html"),
-        name="spa_template",
+        name="battle_detail_v2",
     ),
 ]

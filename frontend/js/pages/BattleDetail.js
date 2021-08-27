@@ -40,6 +40,7 @@ function BattleDetail(props) {
       </Wrapper>
     );
   }
+
   const teams = showTeams(battle, user);
   const currentUserTeam = teams[0];
   const otherUserTeam = teams[1];
