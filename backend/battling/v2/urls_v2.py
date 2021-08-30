@@ -12,6 +12,6 @@ urlpatterns = [
     path(
         "battle/list",
         TemplateView.as_view(template_name="react/spa_template.html"),
-        name="spa_template",
+        name="battle_list_v2",
     ),
 ]
