@@ -7,7 +7,6 @@ import Urls from '../utils/urls';
 
 function BattleList(props) {
   const { user } = props.user;
-  console.log('>>>>>>>>', props);
   const { battles } = props.battles;
 
   useEffect(() => {
