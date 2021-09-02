@@ -35,7 +35,7 @@ function BattleList(props) {
         {battles.map((battle) =>
           !battle.winner ? (
             <li key={battle.id}>
-              <a href={Urls.spa_template(battle.id)}>Battle ID {battle.id}</a>
+              <a href={Urls.battle_detail_v2(battle.id)}>Battle ID {battle.id}</a>
             </li>
           ) : null
         )}
@@ -46,7 +46,7 @@ function BattleList(props) {
         {battles.map((battle) =>
           battle.winner ? (
             <li key={battle.id}>
-              <a className="battle_settled" href={Urls.spa_template(battle.id)}>
+              <a className="battle_settled" href={Urls.battle_detail_v2(battle.id)}>
                 Battle ID {battle.id}
               </a>
             </li>
