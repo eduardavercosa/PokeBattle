@@ -26,6 +26,8 @@ const Wrapper = styled.section`
 `;
 
 function BattleDetail(props) {
+  const { loading } = props.battle;
+  const { error } = props.battle;
   const { id } = useParams();
   useEffect(() => {
     props.setCurrentUser();
@@ -33,6 +35,14 @@ function BattleDetail(props) {
   }, []);
   const { battle } = props.battle;
   const { user } = props.user;
+  if (loading) {
+    return (
+      <img alt="loading" src="https://giphy.com/gifs/loop-loading-loader-xTk9ZvMnbIiIew7IpW" />
+    );
+  }
+  if (error) {
+    return 'Ocurred an error';
+  }
   if (!battle) {
     return (
       <Wrapper>
