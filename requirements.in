@@ -1,7 +1,7 @@
-django<4
+django<3
 celery[redis]
 django-model-utils
-django-webpack-loader
+django-webpack-loader==0.7.0
 django-js-reverse
 django-import-export
 python-decouple
@@ -18,3 +18,5 @@ djangorestframework
 requests
 django-templated-email
 social-auth-app-django
+django-cors-headers
+

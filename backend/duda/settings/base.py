@@ -35,7 +35,13 @@ LOGIN_REDIRECT_URL = reverse_lazy("home")
 
 POKE_API_URL = "https://pokeapi.co/api/v2/pokemon/"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS=[]
+CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+]
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -53,9 +59,11 @@ INSTALLED_APPS = [
     "users",
     "battling",
     "pokemon",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
