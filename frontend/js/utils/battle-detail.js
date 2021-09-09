@@ -10,8 +10,8 @@ const showTeams = (battle, user) => {
     opponentUserTeam = currentUserTeam === battle.teams[0] ? battle.teams[1] : battle.teams[0];
   }
   return {
-    user: currentUserTeam,
-    opponent: opponentUserTeam,
+    currentUserTeam,
+    opponentUserTeam,
   };
 };
 

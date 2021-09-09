@@ -31,7 +31,9 @@ function BattleDetail(props) {
     props.getCurrentUser();
     props.getBattle(id);
   }, []);
+
   const { battle, user } = props;
+
   if (!battle) {
     return (
       <Wrapper>
@@ -87,8 +89,8 @@ function BattleDetail(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battle: store.battleState,
-  user: store.userState,
+  battle: store.battleState.battle,
+  user: store.userState.user,
 });
 
 const mapDispatchToProps = (dispatch) => {
