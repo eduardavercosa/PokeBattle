@@ -20,9 +20,9 @@ def battle_round(creator_pokemon, opponent_pokemon):
 
     # Opponents's pokemon attacks
     if opponent_pokemon.attack > creator_pokemon.defense:
-        round_score["creator"] += 1
-    else:
         round_score["opponent"] += 1
+    else:
+        round_score["creator"] += 1
 
     #  In case of draw
     if round_score["creator"] == round_score["opponent"]:
