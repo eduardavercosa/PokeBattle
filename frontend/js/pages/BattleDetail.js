@@ -31,8 +31,7 @@ function BattleDetail(props) {
     props.getCurrentUser();
     props.getBattle(id);
   }, []);
-  const { battle } = props.battle;
-  const { user } = props.user;
+  const { battle, user } = props;
   if (!battle) {
     return (
       <Wrapper>
@@ -41,9 +40,7 @@ function BattleDetail(props) {
     );
   }
 
-  const teams = showTeams(battle, user);
-  const currentUserTeam = teams[0];
-  const otherUserTeam = teams[1];
+  const { currentUserTeam, opponentUserTeam } = showTeams(battle, user);
 
   return (
     <Wrapper>
@@ -74,7 +71,7 @@ function BattleDetail(props) {
             <div>
               <p>Your opponent team:</p>
               {battle.winner ? (
-                <TeamCard pokemons={otherUserTeam.pokemons} />
+                <TeamCard pokemons={opponentUserTeam.pokemons} />
               ) : (
                 <p>The battle is not over yet.</p>
               )}
