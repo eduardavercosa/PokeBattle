@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { getBattleList } from '../actions/getBattleList';
-import { setCurrentUser } from '../actions/setUser';
+import { getCurrentUser } from '../actions/getUser';
 import Urls from '../utils/urls';
 
 function BattleList(props) {
@@ -10,7 +10,7 @@ function BattleList(props) {
   const { battles } = props.battles;
 
   useEffect(() => {
-    props.setCurrentUser();
+    props.getCurrentUser();
     props.getBattleList();
   }, []);
 
@@ -72,7 +72,7 @@ const mapStateToProps = (store) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCurrentUser: () => dispatch(setCurrentUser()),
+    getCurrentUser: () => dispatch(getCurrentUser()),
     getBattleList: () => dispatch(getBattleList()),
   };
 };

@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import TeamCard from 'components/TeamCard';
-import { createTeamUrl, getBattleListPage } from 'utils/api';
+import { getTeamUrl, getBattleListPage } from 'utils/api';
 
-import { fetchBattle } from '../actions/setBattle';
-import { setCurrentUser } from '../actions/setUser';
+import { getBattle } from '../actions/getBattle';
+import { getCurrentUser } from '../actions/getUser';
 import { showTeams } from '../utils/battle-detail';
 
 const Title = styled.h1`
@@ -28,8 +28,8 @@ const Wrapper = styled.section`
 function BattleDetail(props) {
   const { id } = useParams();
   useEffect(() => {
-    props.setCurrentUser();
-    props.fetchBattle(id);
+    props.getCurrentUser();
+    props.getBattle(id);
   }, []);
   const { battle } = props.battle;
   const { user } = props.user;
@@ -63,7 +63,7 @@ function BattleDetail(props) {
               {currentUserTeam.pokemons.length === 0 ? (
                 <div>
                   <p>You have not chosen your pokemon yet.</p>
-                  <a href={createTeamUrl(currentUserTeam.id)} role="button">
+                  <a href={getTeamUrl(currentUserTeam.id)} role="button">
                     Edit your team
                   </a>
                 </div>
@@ -80,7 +80,7 @@ function BattleDetail(props) {
               )}
             </div>
           </div>
-          <a href={createTeamUrl(getBattleListPage)} role="button">
+          <a href={getTeamUrl(getBattleListPage)} role="button">
             Back
           </a>
         </div>
@@ -96,8 +96,8 @@ const mapStateToProps = (store) => ({
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCurrentUser: () => dispatch(setCurrentUser()),
-    fetchBattle: (battle) => dispatch(fetchBattle(battle)),
+    getCurrentUser: () => dispatch(getCurrentUser()),
+    getBattle: (battle) => dispatch(getBattle(battle)),
   };
 };
 

@@ -4,7 +4,7 @@ import Urls from './urls';
 
 const baseUrl = window.location.host;
 
-const createTeamUrl = (id) => {
+const getTeamUrl = (id) => {
   const urlTeam = Urls.team_create(id);
   const url = `http://${baseUrl}${urlTeam}`;
   return url;
@@ -33,4 +33,4 @@ const getBattleListPage = async () => {
   return data;
 };
 
-export { getFromApi, createTeamUrl, getCurrentUserData, getTeamData, getBattleListPage };
+export { getFromApi, getTeamUrl, getCurrentUserData, getTeamData, getBattleListPage };
