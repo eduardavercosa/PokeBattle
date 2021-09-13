@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import TeamCard from 'components/TeamCard';
-import { getTeamUrl, getBattleListPage } from 'utils/api';
+import Urls from 'utils/urls';
 
 import { getBattle } from '../actions/getBattle';
 import { getCurrentUser } from '../actions/getUser';
@@ -62,7 +62,7 @@ function BattleDetail(props) {
               {currentUserTeam.pokemons.length === 0 ? (
                 <div>
                   <p>You have not chosen your pokemon yet.</p>
-                  <a href={getTeamUrl(currentUserTeam.id)} role="button">
+                  <a href={Urls.team_create(currentUserTeam.id)} role="button">
                     Edit your team
                   </a>
                 </div>
@@ -79,7 +79,7 @@ function BattleDetail(props) {
               )}
             </div>
           </div>
-          <a href={getTeamUrl(getBattleListPage)} role="button">
+          <a href={Urls.battle_list_v2()} role="button">
             Back
           </a>
         </div>
