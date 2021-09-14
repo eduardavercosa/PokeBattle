@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import { getBattleList } from '../actions/getBattleList';
 import { setCurrentUser } from '../actions/setUser';
@@ -17,25 +18,39 @@ function BattleList(props) {
   if (!battles) {
     return (
       <div className="body">
-        <a className="button_next" href={Urls.home()}>
+        <Link
+          to={{
+            pathname: Urls.home(),
+          }}
+        >
           Back
-        </a>
+        </Link>
         {!user ? <h1>You need to be logged</h1> : <h1>There are no battle in the database.</h1>}
       </div>
     );
   }
   return (
     <div className="body">
-      <a className="button_next" href={Urls.home()}>
+      <Link
+        to={{
+          pathname: Urls.home(),
+        }}
+      >
         Back
-      </a>
+      </Link>
       {!user ? <h1>You need to be logged</h1> : ''}
       <div>
         <h1>Ongoing Battles</h1>
         {battles.map((battle) =>
           !battle.winner ? (
             <li key={battle.id}>
-              <a href={Urls.battle_detail_v2(battle.id)}>Battle ID {battle.id}</a>
+              <Link
+                to={{
+                  pathname: Urls.battle_detail_v2(battle.id),
+                }}
+              >
+                Battle ID {battle.id}
+              </Link>
             </li>
           ) : null
         )}
@@ -46,9 +61,13 @@ function BattleList(props) {
         {battles.map((battle) =>
           battle.winner ? (
             <li key={battle.id}>
-              <a className="battle_settled" href={Urls.battle_detail_v2(battle.id)}>
+              <Link
+                to={{
+                  pathname: Urls.battle_detail_v2(battle.id),
+                }}
+              >
                 Battle ID {battle.id}
-              </a>
+              </Link>
             </li>
           ) : null
         )}
