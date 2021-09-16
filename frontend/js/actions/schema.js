@@ -4,4 +4,11 @@ export const userSchema = new schema.Entity('user');
 
 export const pokemonSchema = new schema.Entity('pokemon');
 
-export const battleSchema = new schema.Entity('battle');
+export const battleSchema = new schema.Entity('battle', {
+  creator: userSchema,
+  opponent: userSchema,
+  winner: userSchema,
+  teams: [{ trainer: userSchema, pokemons: [pokemonSchema] }],
+});
+
+export const battleList = new schema.Array(battleSchema);

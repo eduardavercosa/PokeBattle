@@ -7,8 +7,7 @@ import { setCurrentUser } from '../actions/setUser';
 import Urls from '../utils/urls';
 
 function BattleList(props) {
-  const { user } = props.user;
-  const { battles } = props.battles;
+  const { battles, user } = props;
 
   useEffect(() => {
     props.setCurrentUser();
@@ -25,7 +24,7 @@ function BattleList(props) {
         >
           Back
         </Link>
-        {!user ? <h1>You need to be logged</h1> : <h1>There are no battle in the database.</h1>}
+        {!user ? <h1>You need to be logged</h1> : <h1>There are no battles in the database.</h1>}
       </div>
     );
   }
@@ -41,15 +40,15 @@ function BattleList(props) {
       {!user ? <h1>You need to be logged</h1> : ''}
       <div>
         <h1>Ongoing Battles</h1>
-        {battles.map((battle) =>
-          !battle.winner ? (
-            <li key={battle.id}>
+        {Object.values(battles).map((battles) =>
+          !battles.winner ? (
+            <li key={battles.id}>
               <Link
                 to={{
-                  pathname: Urls.battle_detail_v2(battle.id),
+                  pathname: Urls.battle_detail_v2(battles.id),
                 }}
               >
-                Battle ID {battle.id}
+                Battle ID {battles.id}
               </Link>
             </li>
           ) : null
@@ -58,15 +57,15 @@ function BattleList(props) {
 
       <div>
         <h1>Settled battles</h1>
-        {battles.map((battle) =>
-          battle.winner ? (
-            <li key={battle.id}>
+        {Object.values(battles).map((battles) =>
+          battles.winner ? (
+            <li key={battles.id}>
               <Link
                 to={{
-                  pathname: Urls.battle_detail_v2(battle.id),
+                  pathname: Urls.battle_detail_v2(battles.id),
                 }}
               >
-                Battle ID {battle.id}
+                Battle ID {battles.id}
               </Link>
             </li>
           ) : null
@@ -77,7 +76,7 @@ function BattleList(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battles: store.battleState,
+  battles: store.battleState.battles,
   user: store.userState,
 });
 
