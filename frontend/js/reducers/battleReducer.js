@@ -6,8 +6,7 @@ import {
 } from '../constants';
 
 const initialState = {
-  battle: null,
-  battles: null,
+  battles: [],
   loading: false,
   error: null,
 };
@@ -17,7 +16,7 @@ export const battleReducer = (state = initialState, action) => {
     case BATTLE_DETAIL_STARTED:
       return { ...state, loading: true };
     case BATTLE_DETAIL_SUCCESSED:
-      return { ...state, loading: false, battle: action.payload };
+      return { ...state, loading: false, battles: [action.payload] };
     case BATTLE_DETAIL_FAILED:
       return { ...state, loading: false, err: action.error };
     case BATTLE_LIST:

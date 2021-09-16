@@ -1,3 +1,4 @@
+import { includes, isNil } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
@@ -25,16 +26,14 @@ const Wrapper = styled.section`
   background: linear-gradient(to right, rgb(197, 230, 236), rgb(239, 187, 230));
 `;
 
-function BattleDetail(props) {
-  const { loading } = props.battle;
-  const { error } = props.battle;
+const BattleDetail = (props) => {
   const { id } = useParams();
+  const { battles, loading, error } = props;
+  const { user } = props.user;
   useEffect(() => {
     props.setCurrentUser();
     props.fetchBattle(id);
   }, []);
-  const { battle } = props.battle;
-  const { user } = props.user;
   if (loading) {
     return (
       <img alt="loading" src="https://giphy.com/gifs/loop-loading-loader-xTk9ZvMnbIiIew7IpW" />
@@ -43,20 +42,28 @@ function BattleDetail(props) {
   if (error) {
     return 'Ocurred an error';
   }
-  if (!battle) {
+  if (!user) {
+    return (
+      <Wrapper>
+        <Title>The user is not logged in.</Title>
+      </Wrapper>
+    );
+  }
+  if (battles.length === 0 && !isNil(user)) {
     return (
       <Wrapper>
         <Title>The battle you are looking for does not exist.</Title>
       </Wrapper>
     );
   }
+  const battle = battles[0];
   const teams = showTeams(battle, user);
   const currentUserTeam = teams[0];
   const otherUserTeam = teams[1];
 
   return (
     <Wrapper>
-      {user.email !== battle.creator.email && user !== battle.opponent.email ? (
+      {!includes([battle.creator.email, battle.opponent.email], user.email) ? (
         <Text>You do not have acess to this battle</Text>
       ) : (
         <div>
@@ -92,11 +99,14 @@ function BattleDetail(props) {
       )}
     </Wrapper>
   );
-}
+};
 
-const mapStateToProps = (store) => ({
-  battle: store.battleState,
-  user: store.userState,
+const mapStateToProps = (state) => ({
+  battles: state.battleState.battles,
+  battleState: state.battleState,
+  loading: state.battleState.loading,
+  error: state.battleState.error,
+  user: state.userState,
 });
 
 const mapDispatchToProps = (dispatch) => {
