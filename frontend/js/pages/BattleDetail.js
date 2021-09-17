@@ -6,8 +6,8 @@ import styled from 'styled-components';
 
 import TeamCard from 'components/TeamCard';
 
-import { fetchBattle } from '../actions/setBattle';
-import { setCurrentUser } from '../actions/setUser';
+import { getBattle } from '../actions/getBattle';
+import { getCurrentUser } from '../actions/getUser';
 import { showTeams } from '../utils/battle-detail';
 import Urls from '../utils/urls';
 
@@ -31,8 +31,8 @@ const BattleDetail = (props) => {
   const { battles, loading, error } = props;
   const { user } = props.user;
   useEffect(() => {
-    props.setCurrentUser();
-    props.fetchBattle(id);
+    props.getCurrentUser();
+    props.getBattle(id);
   }, []);
   if (loading) {
     return (
@@ -102,17 +102,17 @@ const BattleDetail = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  battles: state.battleState.battles,
-  battleState: state.battleState,
-  loading: state.battleState.loading,
-  error: state.battleState.error,
-  user: state.userState,
+  battles: state.battle.battles,
+  battle: state.battle,
+  loading: state.battle.loading,
+  error: state.battle.error,
+  user: state.user,
 });
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCurrentUser: () => dispatch(setCurrentUser()),
-    fetchBattle: (battle) => dispatch(fetchBattle(battle)),
+    getCurrentUser: () => dispatch(getCurrentUser()),
+    getBattle: (battle) => dispatch(getBattle(battle)),
   };
 };
 

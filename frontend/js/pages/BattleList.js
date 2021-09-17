@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import { getBattleList } from '../actions/getBattleList';
-import { setCurrentUser } from '../actions/setUser';
+import { getCurrentUser } from '../actions/getUser';
 import Urls from '../utils/urls';
 
 function BattleList(props) {
   const { battles, user } = props;
 
   useEffect(() => {
-    props.setCurrentUser();
+    props.getCurrentUser();
     props.getBattleList();
   }, []);
 
@@ -76,13 +76,13 @@ function BattleList(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battles: store.battleState.battles,
-  user: store.userState,
+  battles: store.battle.battles,
+  user: store.user,
 });
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCurrentUser: () => dispatch(setCurrentUser()),
+    getCurrentUser: () => dispatch(getCurrentUser()),
     getBattleList: () => dispatch(getBattleList()),
   };
 };

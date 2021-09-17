@@ -4,6 +4,6 @@ import { battleReducer } from './battleReducer';
 import { userReducer } from './userReducer';
 
 export const Reducers = combineReducers({
-  battleState: battleReducer,
-  userState: userReducer,
+  battle: battleReducer,
+  user: userReducer,
 });
