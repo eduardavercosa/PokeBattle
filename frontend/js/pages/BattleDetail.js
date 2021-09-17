@@ -5,8 +5,8 @@ import styled from 'styled-components';
 
 import TeamCard from 'components/TeamCard';
 
-import { fetchBattle } from '../actions/setBattle';
-import { setCurrentUser } from '../actions/setUser';
+import { getBattle } from '../actions/getBattle';
+import { getCurrentUser } from '../actions/getUser';
 import { showTeams } from '../utils/battle-detail';
 import Urls from '../utils/urls';
 
@@ -28,11 +28,12 @@ const Wrapper = styled.section`
 function BattleDetail(props) {
   const { id } = useParams();
   useEffect(() => {
-    props.setCurrentUser();
-    props.fetchBattle(id);
+    props.getCurrentUser();
+    props.getBattle(id);
   }, []);
-  const { battle } = props.battle;
-  const { user } = props.user;
+
+  const { battle, user } = props;
+
   if (!battle) {
     return (
       <Wrapper>
@@ -40,9 +41,8 @@ function BattleDetail(props) {
       </Wrapper>
     );
   }
-  const teams = showTeams(battle, user);
-  const currentUserTeam = teams[0];
-  const otherUserTeam = teams[1];
+
+  const { currentUserTeam, opponentUserTeam } = showTeams(battle, user);
 
   return (
     <Wrapper>
@@ -62,7 +62,7 @@ function BattleDetail(props) {
               {currentUserTeam.pokemons.length === 0 ? (
                 <div>
                   <p>You have not chosen your pokemon yet.</p>
-                  <Link to={Urls.create_team(currentUserTeam.id)}>Edit your team</Link>
+                  <Link to={Urls.team_create(currentUserTeam.id)}>Edit your team</Link>
                 </div>
               ) : (
                 <TeamCard pokemons={currentUserTeam.pokemons} />
@@ -71,7 +71,7 @@ function BattleDetail(props) {
             <div>
               <p>Your opponent team:</p>
               {battle.winner ? (
-                <TeamCard pokemons={otherUserTeam.pokemons} />
+                <TeamCard pokemons={opponentUserTeam.pokemons} />
               ) : (
                 <p>The battle is not over yet.</p>
               )}
@@ -85,14 +85,14 @@ function BattleDetail(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battle: store.battleState,
-  user: store.userState,
+  battle: store.battle.battle,
+  user: store.currentUser.user,
 });
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setCurrentUser: () => dispatch(setCurrentUser()),
-    fetchBattle: (battle) => dispatch(fetchBattle(battle)),
+    getCurrentUser: () => dispatch(getCurrentUser()),
+    getBattle: (battle) => dispatch(getBattle(battle)),
   };
 };
 
