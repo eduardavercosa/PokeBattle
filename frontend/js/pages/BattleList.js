@@ -16,51 +16,43 @@ function BattleList(props) {
 
   if (!battles) {
     return (
-      <div className="battle_container_detail">
-        <h1>Your Battles</h1>
-        {!user ? (
-          <h2 className="subtitle">You need to be logged</h2>
-        ) : (
-          <h2 className="subtitle">There are no battle in the database.</h2>
-        )}
+      <div className="body">
+        <a className="button_next" href={Urls.home()}>
+          Back
+        </a>
+        {!user ? <h1>You need to be logged</h1> : <h1>There are no battle in the database.</h1>}
       </div>
     );
   }
   return (
-    <div className="battle_container_detail">
-      <h1>Your Battles</h1>
-      {!user ? (
-        <h2 className="subtitle">You need to be logged</h2>
-      ) : (
-        <h2 className="subtitle">Click to see more information</h2>
-      )}
-      <ul className="list_battle">
-        <div className="settled">
-          <h3>Settled battles</h3>
-          {battles.map((battle) =>
-            battle.winner ? (
-              <li key={battle.id} className="item">
-                <a className="battle_settled" href={Urls.battle_detail_v2(battle.id)}>
-                  Battle ID {battle.id}
-                </a>
-              </li>
-            ) : null
-          )}
-        </div>
+    <div className="body">
+      <a className="button_next" href={Urls.home()}>
+        Back
+      </a>
+      {!user ? <h1>You need to be logged</h1> : ''}
+      <div>
+        <h1>Ongoing Battles</h1>
+        {battles.map((battle) =>
+          !battle.winner ? (
+            <li key={battle.id}>
+              <a href={Urls.battle_detail_v2(battle.id)}>Battle ID {battle.id}</a>
+            </li>
+          ) : null
+        )}
+      </div>
 
-        <div className="your_opponent">
-          <h3>On goind Battles</h3>
-          {battles.map((battle) =>
-            !battle.winner ? (
-              <li key={battle.id} className="item">
-                <a className="battle_ongoing" href={Urls.battle_detail_v2(battle.id)}>
-                  Battle ID {battle.id}
-                </a>
-              </li>
-            ) : null
-          )}
-        </div>
-      </ul>
+      <div>
+        <h1>Settled battles</h1>
+        {battles.map((battle) =>
+          battle.winner ? (
+            <li key={battle.id}>
+              <a className="battle_settled" href={Urls.battle_detail_v2(battle.id)}>
+                Battle ID {battle.id}
+              </a>
+            </li>
+          ) : null
+        )}
+      </div>
     </div>
   );
 }
