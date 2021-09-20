@@ -14,7 +14,7 @@ const getBattleDetailsFailed = (error) => ({
   error,
 });
 
-const fetchBattle = (battleId) => async (dispatch) => {
+const getBattle = (battleId) => async (dispatch) => {
   dispatch(getBattleDetailsStarted());
   try {
     const battleDetails = await getTeamData(battleId);
@@ -24,4 +24,4 @@ const fetchBattle = (battleId) => async (dispatch) => {
   }
 };
 
-export { fetchBattle };
+export { getBattle };

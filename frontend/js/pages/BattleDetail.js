@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import TeamCard from 'components/TeamCard';
 
-import { fetchBattle } from '../actions/setBattle';
+import { getBattle } from '../actions/getBattle';
 import { setCurrentUser } from '../actions/setUser';
 import { showTeams } from '../utils/battle-detail';
 import Urls from '../utils/urls';
@@ -31,7 +31,7 @@ function BattleDetail(props) {
   const { id } = useParams();
   useEffect(() => {
     props.setCurrentUser();
-    props.fetchBattle(id);
+    props.getBattle(id);
   }, []);
   const { battle } = props.battle;
   const { user } = props.user;
@@ -102,7 +102,7 @@ const mapStateToProps = (store) => ({
 const mapDispatchToProps = (dispatch) => {
   return {
     setCurrentUser: () => dispatch(setCurrentUser()),
-    fetchBattle: (battle) => dispatch(fetchBattle(battle)),
+    getBattle: (battle) => dispatch(getBattle(battle)),
   };
 };
 
