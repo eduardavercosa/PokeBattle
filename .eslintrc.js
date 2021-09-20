@@ -3,7 +3,12 @@ const path = require('path');
 module.exports = {
   root: true,
   extends: ['vinta/recommended'],
-  rules: {},
+  rules: {
+    "default-param-last": "off",
+    "react/prop-types": "off",
+    "react/destructuring-assignment": 'off',
+    'sonarjs/no-small-switch': 'off',
+  },
   env: {
     es6: true,
     browser: true,

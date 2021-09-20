@@ -1,84 +1,111 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { getFromApi } from 'utils/api';
+import TeamCard from 'components/TeamCard';
+import Urls from 'utils/urls';
 
-import MessageBanner from '../components/battles/MessageBanner';
-import TeamTable from '../components/battles/TeamTable';
-import Urls from '../utils/urls';
+import { getBattle } from '../actions/getBattle';
+import { getCurrentUser } from '../actions/getUser';
+import { showTeams } from '../utils/battle-detail';
 
-function BattleDetail() {
+const Title = styled.h1`
+  font-size: 3em;
+  color: white;
+`;
+
+const Text = styled.h1`
+  font-size: 1.5em;
+  color: white;
+`;
+
+const Wrapper = styled.section`
+  padding: 4em;
+  background: linear-gradient(to right, rgb(197, 230, 236), rgb(239, 187, 230));
+`;
+
+function BattleDetail(props) {
   const { id } = useParams();
-  const [battle, setBattle] = useState();
-
-  const getTeamData = async () => {
-    const data = await getFromApi(Urls['battle-detail'](id));
-    setBattle(data);
-    return data;
-  };
-
   useEffect(() => {
-    getTeamData();
+    props.getCurrentUser();
+    props.getBattle(id);
   }, []);
+
+  const { battle, user } = props;
+
   if (!battle) {
     return (
-      <MessageBanner
-        content={
-          <div className="body">
-            <div className="teste">
-              <h1>The battle you are looking for does not exist.</h1>
-            </div>
-          </div>
-        }
-      />
+      <Wrapper>
+        <Title>The battle you are looking for does not exist.</Title>
+      </Wrapper>
     );
   }
-  if (!battle.winner || !battle.teams) {
-    return (
-      <MessageBanner
-        content={
-          <div>
-            <h1>Battle result!</h1>
-            <div>
-              <h1>The battle is not over yet!</h1>
-              <p>{battle.creator.email} team:</p>
-              <div>
-                <a href={Urls['battle-list']()}>Back</a>
-              </div>
-            </div>
-          </div>
-        }
-      />
-    );
-  }
-  return (
-    <div className="body">
-      <div className="container1" id="home">
-        <h1>Welcome to Poke Battle!</h1>
-        <h2>Choose your pokemons and fight!</h2>
-        <div className="container2">
-          <img
-            alt="pokemon_img"
-            height="200px"
-            src="https://static.tvtropes.org/pmwiki/pub/images/pokemon_350_210.png"
-            width="400px"
-          />
 
-          <div className="teste">
-            <h1>Result</h1>
+  if (battle.teams.length < 2) {
+    return (
+      <Wrapper>
+        <Title>The teams were not created.</Title>
+      </Wrapper>
+    );
+  }
+
+  const { currentUserTeam, opponentUserTeam } = showTeams(battle, user);
+
+  return (
+    <Wrapper>
+      {user.email !== battle.creator.email && user !== battle.opponent.email ? (
+        <Text>You do not have acess to this battle</Text>
+      ) : (
+        <div>
+          <Title>Battle result!</Title>
+          {battle.winner ? (
+            <Text>The winner is {battle.winner ? battle.winner.email : ''}</Text>
+          ) : (
+            ''
+          )}
+          <div>
             <div>
-              <h3>{battle.winner.email} won!</h3>
-              <TeamTable battleTeam={battle.teams[0]} battleTrainer={battle.creator} />
-              <TeamTable battleTeam={battle.teams[1]} battleTrainer={battle.opponent} />
+              <p>Your team:</p>
+              {currentUserTeam.pokemons.length === 0 ? (
+                <div>
+                  <p>You have not chosen your pokemon yet.</p>
+                  <a href={Urls.team_create(currentUserTeam.id)} role="button">
+                    Edit your team
+                  </a>
+                </div>
+              ) : (
+                <TeamCard pokemons={currentUserTeam.pokemons} />
+              )}
             </div>
-            <a className="button_next" href={Urls['battle-list']()}>
-              Back
-            </a>
+            <div>
+              <p>Your opponent team:</p>
+              {battle.winner ? (
+                <TeamCard pokemons={opponentUserTeam.pokemons} />
+              ) : (
+                <p>The battle is not over yet.</p>
+              )}
+            </div>
           </div>
+          <a href={Urls.battle_list_v2()} role="button">
+            Back
+          </a>
         </div>
-      </div>
-    </div>
+      )}
+    </Wrapper>
   );
 }
 
-export default BattleDetail;
+const mapStateToProps = (store) => ({
+  battle: store.battle.battle,
+  user: store.currentUser.user,
+});
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getCurrentUser: () => dispatch(getCurrentUser()),
+    getBattle: (battle) => dispatch(getBattle(battle)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BattleDetail);
