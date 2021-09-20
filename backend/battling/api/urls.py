@@ -4,9 +4,9 @@ from battling.api import endpoints
 
 
 urlpatterns = [
-    path("battles/list/", endpoints.BattleList.as_view(), name="battle-list"),
-    path("battles/<int:pk>/", endpoints.BattleDetail.as_view(), name="battle-detail"),
-    path("battles/create/", endpoints.CreateBattle.as_view(), name="create-battle"),
-    path("team/<int:pk>/edit/", endpoints.CreateTeam.as_view(), name="team_create"),
-    path("user/", endpoints.CurrentUserEndpoint.as_view(), name="current-user"),
+    path("api/battles/list/", endpoints.BattleList.as_view(), name="battle-list"),
+    path("api/battles/<int:pk>/", endpoints.BattleDetail.as_view(), name="battle-detail"),
+    path("api/battles/create/", endpoints.CreateBattle.as_view(), name="create-battle"),
+    path("api/team/<int:pk>/edit/", endpoints.CreateTeam.as_view(), name="team_create"),
+    path("api/user/", endpoints.CurrentUserEndpoint.as_view(), name="current-user"),
 ]
