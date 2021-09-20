@@ -42,6 +42,14 @@ function BattleDetail(props) {
     );
   }
 
+  if (battle.teams.length < 2) {
+    return (
+      <Wrapper>
+        <Title>The teams were not created.</Title>
+      </Wrapper>
+    );
+  }
+
   const { currentUserTeam, opponentUserTeam } = showTeams(battle, user);
 
   return (
