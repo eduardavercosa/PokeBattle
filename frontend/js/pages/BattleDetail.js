@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 import TeamCard from 'components/TeamCard';
-import Urls from 'utils/urls';
 
 import { getBattle } from '../actions/getBattle';
 import { getCurrentUser } from '../actions/getUser';
 import { showTeams } from '../utils/battle-detail';
+import Urls from '../utils/urls';
 
 const Title = styled.h1`
   font-size: 3em;
@@ -70,9 +70,7 @@ function BattleDetail(props) {
               {currentUserTeam.pokemons.length === 0 ? (
                 <div>
                   <p>You have not chosen your pokemon yet.</p>
-                  <a href={Urls.team_create(currentUserTeam.id)} role="button">
-                    Edit your team
-                  </a>
+                  <Link to={Urls.team_create(currentUserTeam.id)}>Edit your team</Link>
                 </div>
               ) : (
                 <TeamCard pokemons={currentUserTeam.pokemons} />
@@ -87,9 +85,7 @@ function BattleDetail(props) {
               )}
             </div>
           </div>
-          <a href={Urls.battle_list_v2()} role="button">
-            Back
-          </a>
+          <Link to={Urls.battle_list_v2()}>Back</Link>
         </div>
       )}
     </Wrapper>
