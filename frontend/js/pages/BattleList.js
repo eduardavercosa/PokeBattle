@@ -7,7 +7,8 @@ import { getCurrentUser } from '../actions/getUser';
 import Urls from '../utils/urls';
 
 function BattleList(props) {
-  const { battles, user } = props;
+  const { user } = props;
+  const battles = props.battles.battle;
 
   useEffect(() => {
     props.getCurrentUser();

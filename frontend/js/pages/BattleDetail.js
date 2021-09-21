@@ -56,7 +56,7 @@ const BattleDetail = (props) => {
       </Wrapper>
     );
   }
-  const { battle, pokemon, users } = battles[0];
+  const { battle, pokemon, users } = battles;
   const teams = showTeams(battle[id], user);
   const { currentUserTeam } = teams;
   const { opponentUserTeam } = teams;
