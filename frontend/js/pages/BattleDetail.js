@@ -30,6 +30,7 @@ const BattleDetail = (props) => {
   const { id } = useParams();
   const { battles, loading, error } = props;
   const { user } = props.user;
+  console.log(props);
   useEffect(() => {
     props.getCurrentUser();
     props.getBattle(id);
@@ -107,7 +108,7 @@ const BattleDetail = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  battles: state.battle.battles,
+  battles: state.battle.entities,
   loading: state.battle.loading,
   error: state.battle.error,
   user: state.user,

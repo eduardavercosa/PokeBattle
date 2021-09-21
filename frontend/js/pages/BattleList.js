@@ -77,7 +77,7 @@ function BattleList(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battles: store.battle.battles,
+  battles: store.battle.entities,
   user: store.user,
 });
 
