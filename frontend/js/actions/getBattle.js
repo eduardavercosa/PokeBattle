@@ -23,7 +23,7 @@ const getBattle = (battleId) => async (dispatch) => {
   try {
     const battleDetails = await getTeamData(battleId);
     const normalizedBattle = normalize(battleDetails, schema.battleSchema);
-    const battle = normalizedBattle.entities.battle[normalizedBattle.result];
+    const battle = normalizedBattle.entities;
     dispatch(getBattleDetailsSuccess(battle));
   } catch (err) {
     dispatch(getBattleDetailsFailed(err.toString()));

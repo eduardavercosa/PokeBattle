@@ -1,6 +1,6 @@
 import { schema } from 'normalizr';
 
-export const userSchema = new schema.Entity('user');
+export const userSchema = new schema.Entity('users');
 
 export const pokemonSchema = new schema.Entity('pokemon');
 

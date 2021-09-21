@@ -56,20 +56,21 @@ const BattleDetail = (props) => {
       </Wrapper>
     );
   }
-  const battle = battles[0];
-  const teams = showTeams(battle, user);
-  const currentUserTeam = teams[0];
-  const otherUserTeam = teams[1];
+  const { battle, pokemon, users } = battles[0];
+  const teams = showTeams(battle[id], user);
+  const { currentUserTeam } = teams;
+  const { opponentUserTeam } = teams;
+  const { winner } = battle[id];
 
   return (
     <Wrapper>
-      {!includes([battle.creator.email, battle.opponent.email], user.email) ? (
+      {!includes([currentUserTeam.trainer, opponentUserTeam.trainer], user.id) ? (
         <Text>You do not have acess to this battle</Text>
       ) : (
         <div>
           <Title>Battle result!</Title>
-          {battle.winner ? (
-            <Text>The winner is {battle.winner ? battle.winner.email : ''}</Text>
+          {battle[id].winner ? (
+            <Text>The winner is {battle[id].winner ? users[winner].email : ''}</Text>
           ) : (
             ''
           )}
@@ -82,13 +83,17 @@ const BattleDetail = (props) => {
                   <Link to={Urls.create_team(currentUserTeam.id)}>Edit your team</Link>
                 </div>
               ) : (
-                <TeamCard pokemons={currentUserTeam.pokemons} />
+                <TeamCard
+                  pokemons={currentUserTeam.pokemons.map((pokemonId) => pokemon[pokemonId])}
+                />
               )}
             </div>
             <div>
               <p>Your opponent team:</p>
-              {battle.winner ? (
-                <TeamCard pokemons={otherUserTeam.pokemons} />
+              {battle[id].winner ? (
+                <TeamCard
+                  pokemons={opponentUserTeam.pokemons.map((pokemonId) => pokemon[pokemonId])}
+                />
               ) : (
                 <p>The battle is not over yet.</p>
               )}
@@ -103,7 +108,6 @@ const BattleDetail = (props) => {
 
 const mapStateToProps = (state) => ({
   battles: state.battle.battles,
-  battle: state.battle,
   loading: state.battle.loading,
   error: state.battle.error,
   user: state.user,
