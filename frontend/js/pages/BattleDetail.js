@@ -64,7 +64,7 @@ const BattleDetail = (props) => {
   const { opponentUserTeam } = teams;
   const { winner } = battle[id];
 
-  if (battle.teams.length < 2) {
+  if (teams.length < 2) {
     return (
       <Wrapper>
         <Title>The teams were not created.</Title>

@@ -77,8 +77,8 @@ function BattleList(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battles: store.battle,
-  user: store.currentUser,
+  battles: store.battle.entities,
+  user: store.user,
 });
 
 const mapDispatchToProps = (dispatch) => {
