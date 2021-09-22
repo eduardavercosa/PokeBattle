@@ -64,6 +64,14 @@ const BattleDetail = (props) => {
   const { opponentUserTeam } = teams;
   const { winner } = battle[id];
 
+  if (battle.teams.length < 2) {
+    return (
+      <Wrapper>
+        <Title>The teams were not created.</Title>
+      </Wrapper>
+    );
+  }
+
   return (
     <Wrapper>
       {!includes([currentUserTeam.trainer, opponentUserTeam.trainer], user.id) ? (
@@ -82,7 +90,7 @@ const BattleDetail = (props) => {
               {currentUserTeam.pokemons.length === 0 ? (
                 <div>
                   <p>You have not chosen your pokemon yet.</p>
-                  <Link to={Urls.create_team(currentUserTeam.id)}>Edit your team</Link>
+                  <Link to={Urls.team_create(currentUserTeam.id)}>Edit your team</Link>
                 </div>
               ) : (
                 <TeamCard

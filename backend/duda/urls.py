@@ -10,5 +10,5 @@ urlpatterns = [
     path("jsreverse/", django_js_reverse.views.urls_js, name="js_reverse"),
     path("", include("battling.urls")),
     path("api/", include("battling.api.urls")),
-    path("v2/", include("battling.v2.urls_v2")),
+    path("v2/", include("battling.urls_v2")),
 ]
