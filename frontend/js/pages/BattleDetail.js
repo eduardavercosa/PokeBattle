@@ -30,10 +30,11 @@ const BattleDetail = (props) => {
   const { id } = useParams();
   const { battles, loading, error } = props;
   const { user } = props.user;
-  console.log(props);
   useEffect(() => {
-    props.getCurrentUser();
-    props.getBattle(id);
+    if (battles.length === 0 || battles.battle[id]) {
+      props.getCurrentUser();
+      props.getBattle(id);
+    }
   }, []);
   if (loading) {
     return (
