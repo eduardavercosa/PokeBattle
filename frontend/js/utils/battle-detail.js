@@ -3,8 +3,7 @@ const showTeams = (battle, user) => {
   let opponentUserTeam = null;
 
   if (battle.teams.length === 2) {
-    currentUserTeam =
-      battle.teams[0].trainer.email === user.email ? battle.teams[0] : battle.teams[1];
+    currentUserTeam = battle.teams[0].trainer === user.id ? battle.teams[0] : battle.teams[1];
     opponentUserTeam = currentUserTeam === battle.teams[0] ? battle.teams[1] : battle.teams[0];
   }
   return {
