@@ -78,4 +78,27 @@ const battleCreate = async (battle) => {
   return data;
 };
 
-export { getFromApi, getCurrentUserData, getTeamData, getBattleListPage, battleCreate };
+const getPokemonFromApi = (pokemon) => {
+  const url = `https://pokeapi.co/api/v2/pokemon/${pokemon}`;
+  const response = axios.get(url).then((res) => {
+    const pokemonData = {
+      pokemonId: _.get(res, 'data.id', null),
+      name: _.get(res, 'data.name', null),
+      imgUrl: _.get(res, 'data.sprites.front_default', null),
+      attack: _.get(res, 'data.stats[1].base_stat', null),
+      defense: _.get(res, 'data.stats[2].base_stat', null),
+      hp: _.get(res, 'data.stats[0].base_stat', null),
+    };
+    return pokemonData;
+  });
+  return response;
+};
+
+export {
+  getFromApi,
+  getCurrentUserData,
+  getTeamData,
+  getBattleListPage,
+  battleCreate,
+  getPokemonFromApi,
+};

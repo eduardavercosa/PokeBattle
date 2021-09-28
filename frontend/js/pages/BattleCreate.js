@@ -7,6 +7,7 @@ import { getCurrentUser } from '../actions/getUser';
 
 function BattleCreate(props) {
   const { user } = props;
+  const baseUrl = window.location.host;
 
   const validate = (data) => {
     let error = null;
@@ -36,7 +37,11 @@ function BattleCreate(props) {
             opponent_email: '',
           }}
           onSubmit={(values) => {
-            return props.createBattle(values);
+            props.createBattle(values).then((r) => {
+              const teamId = r.payload.data.teams[0].id;
+              window.location.replace(`http://${baseUrl}/v2/team/${teamId}/edit`);
+              return r;
+            });
           }}
         >
           {({ errors }) => (

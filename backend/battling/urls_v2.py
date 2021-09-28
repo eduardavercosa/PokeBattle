@@ -19,4 +19,9 @@ urlpatterns = [
         TemplateView.as_view(template_name="react/spa_template.html"),
         name="battle_create_v2",
     ),
+    path(
+        "team/<int:pk>/edit",
+        TemplateView.as_view(template_name="react/spa_template.html"),
+        name="team_create_v2",
+    ),
 ]
