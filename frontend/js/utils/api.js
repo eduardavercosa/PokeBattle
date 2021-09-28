@@ -37,16 +37,16 @@ const postOnApi = (urlApi, battleData) => {
       {
         creator: battleData.creator,
         opponent: battleData.opponent,
-        opponent_id: battleData.opponent_id,
-        creator_id: battleData.creator_id,
+        /* eslint-disable-next-line babel/camelcase */
+        opponent_email: battleData.opponent,
       },
       { headers: { 'X-CSRFToken': token } }
     )
     .then((response) => {
-      console.log(response);
       return response;
     })
     .catch((error) => {
+      /* eslint-disable-next-line no-console */
       console.log(error);
     });
   return response;
@@ -71,8 +71,8 @@ const battleCreate = async (battle) => {
   const battleData = {
     creator: _.get(battle, 'creator', null),
     opponent: _.get(battle, 'opponent', null),
-    opponent_id: _.get(battle, 'opponent_id', null),
-    creator_id: _.get(battle, 'creator_id', null),
+    /* eslint-disable-next-line babel/camelcase */
+    opponent_email: _.get(battle, 'opponent', null),
   };
   const data = await postOnApi(Urls['create-battle'](), battleData);
   return data;

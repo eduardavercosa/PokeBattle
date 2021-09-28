@@ -31,9 +31,9 @@ function BattleCreate(props) {
         <Formik
           initialValues={{
             creator: user.email,
-            creator_id: user.id,
             opponent: '',
-            opponent_id: 10,
+            /* eslint-disable-next-line babel/camelcase */
+            opponent_email: '',
           }}
           onSubmit={(values) => {
             return props.createBattle(values);

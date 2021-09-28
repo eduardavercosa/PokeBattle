@@ -42,6 +42,11 @@ class CreateBattle(generics.CreateAPIView):
     serializer_class = BattleSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        battle_id = response.data.get("id")
+        Team.objects.filter(battle=battle_id, trainer=request.user)
+
 
 class CreateTeam(generics.UpdateAPIView):
     serializer_class = CreateTeamSerializer
