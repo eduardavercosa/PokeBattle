@@ -52,6 +52,22 @@ const postOnApi = (urlApi, battleData) => {
   return response;
 };
 
+const putOnApi = (urlApi, data) => {
+  const tokenCSRF = getCookie('csrftoken');
+
+  if (tokenCSRF) {
+    const urlBattle = `http://${baseUrl}${urlApi}`;
+
+    const response = axios
+      .put(urlBattle, data, { headers: { 'X-CSRFToken': tokenCSRF } })
+      .then((response) => {
+        return response;
+      });
+    return response;
+  }
+  return null;
+};
+
 const getCurrentUserData = async () => {
   const user = await getFromApi(Urls['current-user']());
   return user;
@@ -94,6 +110,33 @@ const getPokemonFromApi = (pokemon) => {
   return response;
 };
 
+const getPokemonsFromApi = async (pokemons) => {
+  const pokemonsNames = Object.values(pokemons);
+  const pokemon1 = await getPokemonFromApi(pokemonsNames[0]);
+  const pokemon2 = await getPokemonFromApi(pokemonsNames[1]);
+  const pokemon3 = await getPokemonFromApi(pokemonsNames[2]);
+
+  return { pokemon1, pokemon2, pokemon3 };
+};
+
+const createTeam = async (team) => {
+  let teamArray = team.pokemons;
+  const validateObject = _.get(team, 'pokemons.pokemon3.name', null);
+  if (validateObject) {
+    teamArray = Object.values(team.pokemons);
+  }
+  const teamData = {
+    /* eslint-disable-next-line babel/camelcase */
+    pokemons_ids: [
+      _.get(teamArray, '[0].pokemonId', null),
+      _.get(teamArray, '[1].pokemonId', null),
+      _.get(teamArray, '[2].pokemonId', null),
+    ],
+  };
+  const data = await putOnApi(Urls.team_create(_.get(team, 'id', null)), teamData);
+  return data;
+};
+
 export {
   getFromApi,
   getCurrentUserData,
@@ -101,4 +144,6 @@ export {
   getBattleListPage,
   battleCreate,
   getPokemonFromApi,
+  getPokemonsFromApi,
+  createTeam,
 };

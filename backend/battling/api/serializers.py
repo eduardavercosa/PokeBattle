@@ -69,10 +69,8 @@ class BattleSerializer(serializers.ModelSerializer):
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):
-    pokemons_ids = serializers.PrimaryKeyRelatedField(
-        source="pokemons",
-        queryset=Pokemon.objects.all(),
-        many=True,
+    pokemons_ids = serializers.SlugRelatedField(
+        source="pokemons", queryset=Pokemon.objects.all(), many=True, slug_field="poke_id"
     )
 
     class Meta:

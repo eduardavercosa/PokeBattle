@@ -2,12 +2,15 @@ import { Formik, Field, Form } from 'formik';
 import _ from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
+import { createTeamAction, getPokemonsFromApiAction } from '../actions/createTeam';
 import { getCurrentUser } from '../actions/getUser';
 import { getPokemonFromApi } from '../utils/api';
 
 function TeamCreate(props) {
   const { user, pokemons } = props;
+  const { id } = useParams();
 
   const validate = (value) => {
     let error = null;
@@ -39,6 +42,9 @@ function TeamCreate(props) {
             pokemon2: '',
             pokemon3: '',
           }}
+          onSubmit={async (values) => {
+            props.getPokemonsFromApiAction(values);
+          }}
         >
           {({ errors }) => (
             <Form>
@@ -65,13 +71,17 @@ function TeamCreate(props) {
                   </div>
                   <div>{errors.pokemon3 && <div>{errors.pokemon3}</div>}</div>
                 </div>
-                <button type="submit">Confirm</button>
-                {pokemons ? (
-                  <div>
-                    <button type="submit">Next</button>
-                  </div>
-                ) : null}
-                <div />
+                <button
+                  type="submit"
+                  onClick={() =>
+                    props.createTeamAction({ pokemons, id, user }).then((r) => {
+                      window.location.replace(`http://${window.location.host}/`);
+                      return r;
+                    })
+                  }
+                >
+                  Next
+                </button>
               </div>
             </Form>
           )}
@@ -84,12 +94,15 @@ function TeamCreate(props) {
 
 const mapStateToProps = (store) => ({
   user: _.get(store, 'user.user', null),
-  pokemon: _.get(store, 'team.pokemons', null),
+  team: _.get(store, 'team.team', null),
+  pokemons: _.get(store, 'team.pokemons', null),
 });
 
 const mapDispatchToProps = (dispatch) => {
   return {
     getCurrentUser: () => dispatch(getCurrentUser()),
+    getPokemonsFromApiAction: (pokemons) => dispatch(getPokemonsFromApiAction(pokemons)),
+    createTeamAction: (team) => dispatch(createTeamAction(team)),
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(TeamCreate);
