@@ -15,6 +15,7 @@ from users.models import User
 
 class HomeView(TemplateView):
     template_name = "battling/home.html"
+    get_all_pokemon_from_api()
 
 
 class CreateBattleView(LoginRequiredMixin, CreateView):
