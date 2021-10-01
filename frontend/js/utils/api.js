@@ -5,6 +5,14 @@ import Urls from './urls';
 
 const baseUrl = window.location.host;
 
+const getAllPokemon = () => {
+  const url = `https://pokeapi.co/api/v2/pokemon/`;
+  const response = axios.get(url).then((res) => {
+    return res.data;
+  });
+  return response;
+};
+
 const getFromApi = (urlApi) => {
   const url = `http://${baseUrl}${urlApi}`;
   const response = axios.get(url).then((res) => {
@@ -146,4 +154,5 @@ export {
   getPokemonFromApi,
   getPokemonsFromApi,
   createTeam,
+  getAllPokemon,
 };
