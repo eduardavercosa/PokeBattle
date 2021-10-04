@@ -6,7 +6,7 @@ import Urls from './urls';
 const baseUrl = window.location.host;
 
 const getAllPokemon = () => {
-  const url = `https://pokeapi.co/api/v2/pokemon/`;
+  const url = `https://pokeapi.co/api/v2/pokemon/?offset=0&limit=1118`;
   const response = axios.get(url).then((res) => {
     return res.data;
   });
@@ -106,6 +106,8 @@ const getPokemonFromApi = (pokemon) => {
   const url = `https://pokeapi.co/api/v2/pokemon/${pokemon}`;
   const response = axios.get(url).then((res) => {
     const pokemonData = {
+      /* eslint-disable-next-line babel/camelcase */
+      poke_id: _.get(res, 'data.id', null),
       pokemonId: _.get(res, 'data.id', null),
       name: _.get(res, 'data.name', null),
       imgUrl: _.get(res, 'data.sprites.front_default', null),
@@ -128,10 +130,10 @@ const getPokemonsFromApi = async (pokemons) => {
 };
 
 const createTeam = async (team) => {
-  let teamArray = team.pokemons;
-  const validateObject = _.get(team, 'pokemons.pokemon3.name', null);
+  let teamArray = team.pokemonPosition;
+  const validateObject = _.get(team, 'pokemonPosition.2.name', null);
   if (validateObject) {
-    teamArray = Object.values(team.pokemons);
+    teamArray = Object.values(team.pokemonPosition);
   }
   const teamData = {
     /* eslint-disable-next-line babel/camelcase */
