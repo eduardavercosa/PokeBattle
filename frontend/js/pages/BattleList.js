@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -15,7 +16,7 @@ function BattleList(props) {
     props.getBattleList();
   }, []);
 
-  if (!battles) {
+  if (isNil(battles)) {
     return (
       <div className="body">
         <Link
@@ -25,7 +26,11 @@ function BattleList(props) {
         >
           Back
         </Link>
-        {!user ? <h1>You need to be logged</h1> : <h1>There are no battles in the database.</h1>}
+        {isNil(user) ? (
+          <h1>You need to be logged</h1>
+        ) : (
+          <h1>There are no battles in the database.</h1>
+        )}
       </div>
     );
   }
@@ -38,11 +43,11 @@ function BattleList(props) {
       >
         Back
       </Link>
-      {!user ? <h1>You need to be logged</h1> : ''}
+      {isNil(user) ? <h1>You need to be logged</h1> : ''}
       <div>
         <h1>Ongoing Battles</h1>
         {Object.values(battles).map((battles) =>
-          !battles.winner ? (
+          isNil(battles.winner) ? (
             <li key={battles.id}>
               <Link
                 to={{

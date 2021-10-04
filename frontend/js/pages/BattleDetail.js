@@ -31,7 +31,7 @@ const BattleDetail = (props) => {
   const { battles, loading, error } = props;
   const { user } = props.user;
   useEffect(() => {
-    if (battles.length === 0 || battles.battle[id]) {
+    if (battles.length === 0 || isNil(battles.battle[id])) {
       props.getCurrentUser();
       props.getBattle(id);
     }
@@ -44,7 +44,7 @@ const BattleDetail = (props) => {
   if (error) {
     return 'Ocurred an error';
   }
-  if (!user) {
+  if (isNil(user)) {
     return (
       <Wrapper>
         <Title>The user is not logged in.</Title>

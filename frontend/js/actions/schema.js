@@ -10,5 +10,3 @@ export const battleSchema = new schema.Entity('battle', {
   winner: userSchema,
   teams: [{ trainer: userSchema, pokemons: [pokemonSchema] }],
 });
-
-export const battleList = new schema.Array(battleSchema);
