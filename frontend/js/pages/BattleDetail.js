@@ -1,3 +1,4 @@
+import { includes, isNil } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
@@ -25,16 +26,16 @@ const Wrapper = styled.section`
   background: linear-gradient(to right, rgb(197, 230, 236), rgb(239, 187, 230));
 `;
 
-function BattleDetail(props) {
-  const { loading } = props.battle;
-  const { error } = props.battle;
+const BattleDetail = (props) => {
   const { id } = useParams();
-  useEffect(() => {
-    props.getCurrentUser();
-    props.getBattle(id);
-  }, []);
-  const { battle } = props.battle;
+  const { battles, loading, error } = props;
   const { user } = props.user;
+  useEffect(() => {
+    if (battles.length === 0 || isNil(battles.battle[id])) {
+      props.getCurrentUser();
+      props.getBattle(id);
+    }
+  }, []);
   if (loading) {
     return (
       <img alt="loading" src="https://giphy.com/gifs/loop-loading-loader-xTk9ZvMnbIiIew7IpW" />
@@ -43,15 +44,27 @@ function BattleDetail(props) {
   if (error) {
     return 'Ocurred an error';
   }
-  if (!battle) {
+  if (isNil(user)) {
+    return (
+      <Wrapper>
+        <Title>The user is not logged in.</Title>
+      </Wrapper>
+    );
+  }
+  if (battles.length === 0 && !isNil(user)) {
     return (
       <Wrapper>
         <Title>The battle you are looking for does not exist.</Title>
       </Wrapper>
     );
   }
+  const { battle, pokemon, users } = battles;
+  const teams = showTeams(battle[id], user);
+  const { currentUserTeam } = teams;
+  const { opponentUserTeam } = teams;
+  const { winner } = battle[id];
 
-  if (battle.teams.length < 2) {
+  if (teams.length < 2) {
     return (
       <Wrapper>
         <Title>The teams were not created.</Title>
@@ -59,17 +72,15 @@ function BattleDetail(props) {
     );
   }
 
-  const { currentUserTeam, opponentUserTeam } = showTeams(battle, user);
-
   return (
     <Wrapper>
-      {user.email !== battle.creator.email && user !== battle.opponent.email ? (
+      {!includes([currentUserTeam.trainer, opponentUserTeam.trainer], user.id) ? (
         <Text>You do not have acess to this battle</Text>
       ) : (
         <div>
           <Title>Battle result!</Title>
-          {battle.winner ? (
-            <Text>The winner is {battle.winner ? battle.winner.email : ''}</Text>
+          {battle[id].winner ? (
+            <Text>The winner is {battle[id].winner ? users[winner].email : ''}</Text>
           ) : (
             ''
           )}
@@ -82,13 +93,17 @@ function BattleDetail(props) {
                   <Link to={Urls.team_create(currentUserTeam.id)}>Edit your team</Link>
                 </div>
               ) : (
-                <TeamCard pokemons={currentUserTeam.pokemons} />
+                <TeamCard
+                  pokemons={currentUserTeam.pokemons.map((pokemonId) => pokemon[pokemonId])}
+                />
               )}
             </div>
             <div>
               <p>Your opponent team:</p>
-              {battle.winner ? (
-                <TeamCard pokemons={opponentUserTeam.pokemons} />
+              {battle[id].winner ? (
+                <TeamCard
+                  pokemons={opponentUserTeam.pokemons.map((pokemonId) => pokemon[pokemonId])}
+                />
               ) : (
                 <p>The battle is not over yet.</p>
               )}
@@ -99,11 +114,13 @@ function BattleDetail(props) {
       )}
     </Wrapper>
   );
-}
+};
 
-const mapStateToProps = (store) => ({
-  battle: store.battle.battle,
-  user: store.currentUser.user,
+const mapStateToProps = (state) => ({
+  battles: state.battle.entities,
+  loading: state.battle.loading,
+  error: state.battle.error,
+  user: state.user,
 });
 
 const mapDispatchToProps = (dispatch) => {

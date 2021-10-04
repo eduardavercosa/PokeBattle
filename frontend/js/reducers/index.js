@@ -5,5 +5,5 @@ import { userReducer } from './userReducer';
 
 export const reducers = combineReducers({
   battle: battleReducer,
-  currentUser: userReducer,
+  user: userReducer,
 });

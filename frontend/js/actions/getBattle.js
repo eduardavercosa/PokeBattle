@@ -1,6 +1,10 @@
+import { normalize } from 'normalizr';
+
 import { getTeamData } from 'utils/api';
 
 import { BATTLE_DETAIL_STARTED, BATTLE_DETAIL_SUCCESSED, BATTLE_DETAIL_FAILED } from '../constants';
+
+import * as schema from './schema';
 
 const getBattleDetailsStarted = () => ({
   type: BATTLE_DETAIL_STARTED,
@@ -18,7 +22,9 @@ const getBattle = (battleId) => async (dispatch) => {
   dispatch(getBattleDetailsStarted());
   try {
     const battleDetails = await getTeamData(battleId);
-    dispatch(getBattleDetailsSuccess(battleDetails));
+    const normalizedBattle = normalize(battleDetails, schema.battleSchema);
+    const battle = normalizedBattle.entities;
+    dispatch(getBattleDetailsSuccess(battle));
   } catch (err) {
     dispatch(getBattleDetailsFailed(err.toString()));
   }

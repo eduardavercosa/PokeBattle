@@ -1,41 +1,61 @@
+import { isNil } from 'lodash';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import { getBattleList } from '../actions/getBattleList';
 import { getCurrentUser } from '../actions/getUser';
 import Urls from '../utils/urls';
 
 function BattleList(props) {
-  const { user } = props.user;
-  const { battles } = props.battles;
+  const { user } = props;
+  const battles = props.battles.battle;
 
   useEffect(() => {
     props.getCurrentUser();
     props.getBattleList();
   }, []);
 
-  if (!battles) {
+  if (isNil(battles)) {
     return (
       <div className="body">
-        <a className="button_next" href={Urls.home()}>
+        <Link
+          to={{
+            pathname: Urls.home(),
+          }}
+        >
           Back
-        </a>
-        {!user ? <h1>You need to be logged</h1> : <h1>There are no battle in the database.</h1>}
+        </Link>
+        {isNil(user) ? (
+          <h1>You need to be logged</h1>
+        ) : (
+          <h1>There are no battles in the database.</h1>
+        )}
       </div>
     );
   }
   return (
     <div className="body">
-      <a className="button_next" href={Urls.home()}>
+      <Link
+        to={{
+          pathname: Urls.home(),
+        }}
+      >
         Back
-      </a>
-      {!user ? <h1>You need to be logged</h1> : ''}
+      </Link>
+      {isNil(user) ? <h1>You need to be logged</h1> : ''}
       <div>
         <h1>Ongoing Battles</h1>
-        {battles.map((battle) =>
-          !battle.winner ? (
-            <li key={battle.id}>
-              <a href={Urls.battle_detail_v2(battle.id)}>Battle ID {battle.id}</a>
+        {Object.values(battles).map((battles) =>
+          isNil(battles.winner) ? (
+            <li key={battles.id}>
+              <Link
+                to={{
+                  pathname: Urls.battle_detail_v2(battles.id),
+                }}
+              >
+                Battle ID {battles.id}
+              </Link>
             </li>
           ) : null
         )}
@@ -43,12 +63,16 @@ function BattleList(props) {
 
       <div>
         <h1>Settled battles</h1>
-        {battles.map((battle) =>
-          battle.winner ? (
-            <li key={battle.id}>
-              <a className="battle_settled" href={Urls.battle_detail_v2(battle.id)}>
-                Battle ID {battle.id}
-              </a>
+        {Object.values(battles).map((battles) =>
+          battles.winner ? (
+            <li key={battles.id}>
+              <Link
+                to={{
+                  pathname: Urls.battle_detail_v2(battles.id),
+                }}
+              >
+                Battle ID {battles.id}
+              </Link>
             </li>
           ) : null
         )}
@@ -58,8 +82,8 @@ function BattleList(props) {
 }
 
 const mapStateToProps = (store) => ({
-  battles: store.battle,
-  user: store.currentUser,
+  battles: store.battle.entities,
+  user: store.user,
 });
 
 const mapDispatchToProps = (dispatch) => {
