@@ -5,6 +5,17 @@ from pokemon.constants import POKE_API_URL
 from pokemon.models import Pokemon
 
 
+def save_pokemon(poke_name):
+    pokemon = Pokemon.objects.filter(name=poke_name).first()
+
+    if pokemon:
+        return pokemon
+
+    data = get_pokemon_from_api(poke_name)
+
+    return create_pokemon(data)
+
+
 def get_all_pokemon_from_api():
     url = POKE_API_URL + "?limit=802"
     response = requests.get(url)
@@ -12,6 +23,7 @@ def get_all_pokemon_from_api():
     pokemon_list = []
     for pokemon in data["results"]:
         pokemon_list.append(pokemon)
+        save_pokemon(pokemon["name"])
     return pokemon_list
 
 

@@ -90,7 +90,7 @@ const BattleDetail = (props) => {
               {currentUserTeam.pokemons.length === 0 ? (
                 <div>
                   <p>You have not chosen your pokemon yet.</p>
-                  <Link to={Urls.team_create(currentUserTeam.id)}>Edit your team</Link>
+                  <Link to={Urls.team_create_v2(currentUserTeam.id)}>Edit your team</Link>
                 </div>
               ) : (
                 <TeamCard

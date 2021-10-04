@@ -35,12 +35,8 @@ class BattleSerializer(serializers.ModelSerializer):
     teams = TeamSerializer(many=True, read_only=True)
     status = serializers.CharField(read_only=True)
     winner = UserSerializer(read_only=True)
-    creator_id = serializers.PrimaryKeyRelatedField(
-        source="creator", queryset=User.objects.all(), required=False
-    )
-    opponent_id = serializers.PrimaryKeyRelatedField(
-        source="opponent",
-        queryset=User.objects.all(),
+    opponent_email = serializers.CharField(
+        write_only=True,
     )
 
     class Meta:
@@ -49,22 +45,23 @@ class BattleSerializer(serializers.ModelSerializer):
             "id",
             "status",
             "creator",
-            "creator_id",
             "opponent",
-            "opponent_id",
+            "opponent_email",
             "teams",
             "status",
             "winner",
         )
 
     def validate(self, attrs):
-        if attrs["creator"] == attrs["opponent"]:
+        if self.context.get("request").user.email == attrs["opponent_email"]:
             raise serializers.ValidationError("ERROR: You can't challenge yourself.")
 
         return attrs
 
     def create(self, validated_data):
         validated_data["creator"] = self.context.get("request").user
+        validated_data["opponent"] = User.objects.get(email=validated_data["opponent_email"])
+        validated_data.pop("opponent_email")
         instance = super().create(validated_data)
 
         set_up_battle_teams_and_send_invite_email(instance)
@@ -72,10 +69,8 @@ class BattleSerializer(serializers.ModelSerializer):
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):
-    pokemons_ids = serializers.PrimaryKeyRelatedField(
-        source="pokemons",
-        queryset=Pokemon.objects.all(),
-        many=True,
+    pokemons_ids = serializers.SlugRelatedField(
+        source="pokemons", queryset=Pokemon.objects.all(), many=True, slug_field="poke_id"
     )
 
     class Meta:
